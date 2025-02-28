@@ -26,3 +26,4 @@ public class PasswordOnlyAuthStrategy implements AuthStrategy {
         return passwordEncoder.matches(authRequest.getPassword(), user.getPassword());
     }
 }
+

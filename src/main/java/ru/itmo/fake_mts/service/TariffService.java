@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.itmo.fake_mts.entity.Tariff;
 import ru.itmo.fake_mts.entity.User;
+import ru.itmo.fake_mts.exception.TariffNotFoundException;
+import ru.itmo.fake_mts.exception.UserNotFoundException;
 import ru.itmo.fake_mts.repo.TariffRepository;
 import ru.itmo.fake_mts.repo.UserRepository;
 
@@ -21,12 +23,12 @@ public class TariffService {
     }
 
     public Tariff getById(Long tariffId) {
-        return tariffRepository.findById(tariffId).orElseThrow(() -> new RuntimeException("Tariff not found"));
+        return tariffRepository.findById(tariffId).orElseThrow(() -> new TariffNotFoundException("Tariff not found"));
     }
 
     public Boolean activateTariff(Long userId, Long tariffId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         Tariff tariff = tariffRepository.findById(tariffId)
                 .orElseThrow(() -> new RuntimeException("Tariff not found"));

@@ -16,21 +16,18 @@ public class UserController {
 
     private final UserService userService;
 
-    @PostMapping("/register")
-    public User register(@RequestParam String phoneNumber,
-                         @RequestParam(required = false) String email,
-                         @RequestParam(required = false) String password) {
-        return userService.register(phoneNumber, email, password);
+    @PostMapping("/start-auth")
+    public String startAuth(@RequestParam String phoneNumber) {
+        return userService.startAuth(phoneNumber);
     }
 
-    @PostMapping("/login")
-    public String login(@RequestParam String phoneNumber, @RequestBody AuthRequest request) {
-        return userService.authenticate(phoneNumber, request);
+    @PostMapping("/complete-auth")
+    public String completeAuth(@RequestParam String phoneNumber, @RequestBody AuthRequest request) {
+        return userService.completeAuth(phoneNumber, request);
     }
 
     @PatchMapping("/{userId}")
-    public User patchUser(@PathVariable Long userId,
-                          @RequestBody UserPatchRequest patch) {
+    public User patchUser(@PathVariable Long userId, @RequestBody UserPatchRequest patch) {
         return userService.patchUser(userId, patch);
     }
 

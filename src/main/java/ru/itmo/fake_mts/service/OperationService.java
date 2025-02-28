@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.itmo.fake_mts.entity.Operation;
 import ru.itmo.fake_mts.entity.OperationType;
 import ru.itmo.fake_mts.entity.User;
+import ru.itmo.fake_mts.exception.UserNotFoundException;
 import ru.itmo.fake_mts.repo.OperationRepository;
 import ru.itmo.fake_mts.repo.UserRepository;
 
@@ -20,7 +21,7 @@ public class OperationService {
 
     public List<Operation> getOperationsByUserAndPeriod(Long userId, LocalDateTime periodStart, LocalDateTime periodEnd) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         return operationRepository.getOperationsByUserAndTimeBetween(user, periodStart, periodEnd);
     }
@@ -31,7 +32,7 @@ public class OperationService {
             OperationType operationType
     ) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         return operationRepository.getOperationsByUserAndTimeBetweenAndOperationType(
                 user,

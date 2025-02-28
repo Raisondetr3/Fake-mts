@@ -13,11 +13,11 @@ import java.util.function.Function;
 @Service
 public class JwtService {
 
-    @Value("${app.jwt.secret}")
-    private String secretKey; // берётся из application.properties
+    @Value("${jwt.secret}")
+    private String secretKey;
 
-    @Value("${app.jwt.expiration-ms:3600000}")
-    private long expirationMs; // по умолчанию 1 час
+    @Value("${jwt.expiration:3600000}")
+    private long expirationMs;
 
     public String generateToken(User user) {
         return Jwts.builder()

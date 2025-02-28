@@ -4,6 +4,9 @@ import ru.itmo.fake_mts.dto.UserPatchRequest;
 import ru.itmo.fake_mts.entity.AuthMethod;
 import ru.itmo.fake_mts.entity.User;
 import ru.itmo.fake_mts.entity.UserStatus;
+import ru.itmo.fake_mts.exception.AuthenticationException;
+import ru.itmo.fake_mts.exception.InvalidPhoneNumberException;
+import ru.itmo.fake_mts.exception.UserNotFoundException;
 import ru.itmo.fake_mts.repo.UserRepository;
 import ru.itmo.fake_mts.security.JwtService;
 import ru.itmo.fake_mts.dto.AuthRequest;
@@ -20,42 +23,67 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final SmsService smsService;
+    private final CodeStorage codeStorage;
     private final List<AuthStrategy> strategies;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
-    public User register(String phoneNumber, String email, String rawPassword) {
-        User user = new User();
-        user.setPhoneNumber(phoneNumber);
-        user.setEmail(email);
-        user.setAuthMethod(AuthMethod.SMS_ONLY);
-        if (rawPassword != null) {
-            user.setPassword(passwordEncoder.encode(rawPassword));
+    public String startAuth(String phoneNumber) {
+        validatePhoneNumber(phoneNumber);
+
+        User user = userRepository.findByPhoneNumber(phoneNumber).orElse(null);
+        if (user == null) {
+            user = new User();
+            user.setPhoneNumber(phoneNumber);
+            user.setAuthMethod(AuthMethod.SMS_ONLY);
+            user.setStatus(UserStatus.ACTIVE);
+            user.setCreatedAt(LocalDateTime.now());
+            user = userRepository.save(user);
         }
-        user.setStatus(UserStatus.ACTIVE);
-        user.setCreatedAt(LocalDateTime.now());
-        return userRepository.save(user);
+
+        AuthMethod method = user.getAuthMethod();
+
+        if (method == AuthMethod.SMS_ONLY || method == AuthMethod.PASSWORD_SMS) {
+            String code = generateRandomCode();
+            codeStorage.saveCodeForPhone(phoneNumber, code);
+            smsService.sendSms(phoneNumber, code);
+            return "OK: SMS code sent. Auth method = " + method;
+        } else {
+            return "OK: no SMS needed. Auth method = " + method;
+        }
     }
 
-    public String authenticate(String phoneNumber, AuthRequest authRequest) {
+    public String completeAuth(String phoneNumber, AuthRequest authRequest) {
+        validatePhoneNumber(phoneNumber);
+
         User user = userRepository.findByPhoneNumber(phoneNumber)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User with phone " + phoneNumber + " not found"));
 
         AuthStrategy strategy = strategies.stream()
                 .filter(s -> s.getAuthMethod() == user.getAuthMethod())
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("No strategy found for: " + user.getAuthMethod()));
+                .orElseThrow(() -> new AuthenticationException("No strategy for: " + user.getAuthMethod()));
 
         boolean ok = strategy.authenticate(user, authRequest);
         if (!ok) {
-            throw new RuntimeException("Authentication failed");
+            throw new AuthenticationException("Authentication failed for method = " + user.getAuthMethod());
         }
+
+        if (user.getAuthMethod() == AuthMethod.SMS_ONLY || user.getAuthMethod() == AuthMethod.PASSWORD_SMS) {
+            codeStorage.removeCodeForPhone(phoneNumber);
+        }
+
         return jwtService.generateToken(user);
+    }
+
+    private String generateRandomCode() {
+        return "1234";
     }
 
     public User patchUser(Long userId, UserPatchRequest patch) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User with id " + userId + " not found"));
 
         if (patch.getFullName() != null) {
             user.setFullName(patch.getFullName());
@@ -78,7 +106,8 @@ public class UserService {
 
     public User changeAuthMethod(Long userId, AuthMethod newMethod, String rawPassword) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User with id " + userId + " not found"));
+
 
         user.setAuthMethod(newMethod);
         if ((newMethod == AuthMethod.PASSWORD_ONLY || newMethod == AuthMethod.PASSWORD_SMS)
@@ -87,5 +116,11 @@ public class UserService {
         }
 
         return userRepository.save(user);
+    }
+
+    private void validatePhoneNumber(String phoneNumber) {
+        if (!phoneNumber.matches("^[+]?\\d+$")) {
+            throw new InvalidPhoneNumberException("Invalid phone number format: " + phoneNumber);
+        }
     }
 }
