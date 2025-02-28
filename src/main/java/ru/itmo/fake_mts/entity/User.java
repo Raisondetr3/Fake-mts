@@ -45,6 +45,13 @@ public class User implements UserDetails {
     private String emailBackup;
 
     @NotNull
+    private Double balance;
+
+    @ManyToOne
+    @JoinColumn(name = "tariff_id")
+    private Tariff tariff;
+
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Builder.Default
     private UserStatus status = UserStatus.ACTIVE;
