@@ -19,6 +19,16 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(NotEnoughMoneyException.class)
+    public ResponseEntity<Object> handleNotEnoughMoneyException(NotEnoughMoneyException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                ex.getMessage(),
+                System.currentTimeMillis()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(TariffNotFoundException.class)
     public ResponseEntity<Object> handleUserNotFound(TariffNotFoundException ex) {
         ErrorResponse errorResponse = new ErrorResponse(

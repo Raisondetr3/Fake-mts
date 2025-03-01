@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.itmo.fake_mts.entity.Tariff;
 import ru.itmo.fake_mts.entity.User;
+import ru.itmo.fake_mts.exception.NotEnoughMoneyException;
 import ru.itmo.fake_mts.exception.TariffNotFoundException;
 import ru.itmo.fake_mts.exception.UserNotFoundException;
 import ru.itmo.fake_mts.repo.TariffRepository;
@@ -31,10 +32,10 @@ public class TariffService {
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         Tariff tariff = tariffRepository.findById(tariffId)
-                .orElseThrow(() -> new RuntimeException("Tariff not found"));
+                .orElseThrow(() -> new TariffNotFoundException("Tariff not found"));
 
         if (user.getBalance() < tariff.getPrice()) {
-            return false;
+            throw new NotEnoughMoneyException("Not enough money, user balance = " + user.getBalance());
         }
 
         user.setBalance(user.getBalance() - tariff.getPrice());
