@@ -50,7 +50,8 @@ public class SecurityConfig {
                     return c;
                 }))
                 .authorizeHttpRequests(auth -> {
-                    auth.requestMatchers("/api/auth/**").permitAll();
+                    auth.requestMatchers("/api/users/start-auth/**").permitAll();
+                    auth.requestMatchers("/api/users/complete-auth/**").permitAll();
                     auth.anyRequest().authenticated();
                 })
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
