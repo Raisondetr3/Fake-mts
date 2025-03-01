@@ -21,11 +21,19 @@ public class SmsOnlyAuthStrategy implements AuthStrategy {
     @Override
     public boolean authenticate(User user, AuthRequest authRequest) {
         String storedCode = codeStorage.getCodeForPhone(user.getPhoneNumber());
+        System.out.println("Stored code: " + storedCode);
+        System.out.println("Received code: " + authRequest.getSmsCode());
+
         if (storedCode == null) {
+            System.out.println("Authentication failed: no stored code found");
             return false;
         }
-        return storedCode.equals(authRequest.getSmsCode());
+
+        boolean isValid = storedCode.equals(authRequest.getSmsCode());
+        System.out.println("Authentication result: " + isValid);
+        return isValid;
     }
+
 }
 
 
