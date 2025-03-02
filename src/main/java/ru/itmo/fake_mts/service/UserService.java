@@ -1,6 +1,6 @@
 package ru.itmo.fake_mts.service;
 
-import ru.itmo.fake_mts.dto.UserPatchRequest;
+import ru.itmo.fake_mts.dto.*;
 import ru.itmo.fake_mts.entity.AuthMethod;
 import ru.itmo.fake_mts.entity.User;
 import ru.itmo.fake_mts.entity.UserStatus;
@@ -10,7 +10,6 @@ import ru.itmo.fake_mts.exception.UserNotFoundException;
 import ru.itmo.fake_mts.exception.WrongPhoneNumberException;
 import ru.itmo.fake_mts.repo.UserRepository;
 import ru.itmo.fake_mts.security.JwtService;
-import ru.itmo.fake_mts.dto.AuthRequest;
 import ru.itmo.fake_mts.security.strategy.AuthStrategy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,16 +30,17 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
-    public String startAuth(String phoneNumber) {
+    public StartAuthResponse startAuth(String phoneNumber) {
         validatePhoneNumber(phoneNumber);
 
         User user = userRepository.findByPhoneNumber(phoneNumber).orElse(null);
         if (user == null) {
-            user = new User();
-            user.setPhoneNumber(phoneNumber);
-            user.setAuthMethod(AuthMethod.SMS_ONLY);
-            user.setStatus(UserStatus.ACTIVE);
-            user.setCreatedAt(LocalDateTime.now());
+            user = User.builder()
+                    .phoneNumber(phoneNumber)
+                    .authMethod(AuthMethod.SMS_ONLY)
+                    .status(UserStatus.ACTIVE)
+                    .createdAt(LocalDateTime.now())
+                    .build();
             user = userRepository.save(user);
         }
 
@@ -50,13 +50,16 @@ public class UserService {
             String code = generateRandomCode();
             codeStorage.saveCodeForPhone(phoneNumber, code);
             smsService.sendSms(phoneNumber, code);
-            return "OK: SMS code sent. Auth method = " + method;
-        } else {
-            return "OK: no SMS needed. Auth method = " + method;
         }
+
+        return StartAuthResponse.builder()
+                .message("OK: " + ((method == AuthMethod.SMS_ONLY || method == AuthMethod.PASSWORD_SMS)
+                        ? "SMS code sent." : "no SMS needed."))
+                .authMethod(method.name())
+                .build();
     }
 
-    public String completeAuth(String phoneNumber, AuthRequest authRequest) {
+    public AuthCompleteResponse completeAuth(String phoneNumber, AuthRequest authRequest) {
         validatePhoneNumber(phoneNumber);
 
         User user = userRepository.findByPhoneNumber(phoneNumber)
@@ -83,7 +86,10 @@ public class UserService {
             codeStorage.removeCodeForPhone(phoneNumber);
         }
 
-        return jwtService.generateToken(user);
+        String token = jwtService.generateToken(user);
+        return AuthCompleteResponse.builder()
+                .token(token)
+                .build();
     }
 
     private String generateRandomCode() {
@@ -93,7 +99,7 @@ public class UserService {
     }
 
 
-    public User patchUser(Long userId, UserPatchRequest patch) {
+    public UserResponse patchUser(Long userId, UserPatchRequest patch) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User with id " + userId + " not found"));
 
@@ -113,10 +119,11 @@ public class UserService {
             user.setEmailBackup(patch.getEmailBackup());
         }
 
-        return userRepository.save(user);
+        User updatedUser = userRepository.save(user);
+        return UserResponse.fromEntity(updatedUser);
     }
 
-    public User changeAuthMethod(Long userId, AuthMethod newMethod, String rawPassword) {
+    public UserResponse changeAuthMethod(Long userId, AuthMethod newMethod, String rawPassword) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User with id " + userId + " not found"));
 
@@ -127,7 +134,8 @@ public class UserService {
             user.setPassword(passwordEncoder.encode(rawPassword));
         }
 
-        return userRepository.save(user);
+        User updatedUser = userRepository.save(user);
+        return UserResponse.fromEntity(updatedUser);
     }
 
     private void validatePhoneNumber(String phoneNumber) {
