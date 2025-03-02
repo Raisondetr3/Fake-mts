@@ -119,8 +119,7 @@ public class UserService {
     }
 
     private void validatePhoneNumber(String phoneNumber) {
-           // if (!phoneNumber.matches("^[+]?\\d+$")) {
-            if (!phoneNumber.matches("^((8|\\+7)[\\- ]?)?(\\(?\\d{3}\\)?[\\- ]?)?[\\d\\- ]{7,10}$")) {
+        if (!phoneNumber.matches("^((8|\\+7)[\\- ]?)?(\\(?\\d{3}\\)?[\\- ]?)?[\\d\\- ]{7,10}$")) {
             throw new InvalidPhoneNumberException("Invalid phone number format: " + phoneNumber);
         }
     }
