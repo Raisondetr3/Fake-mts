@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class SmsService {
     public void sendSms(String phoneNumber, String code) {
-        System.out.println("Send SMS " + phoneNumber + "with code: " + code);
+        log.info("Send SMS code for {}: {}", phoneNumber, code);
     }
 }
 

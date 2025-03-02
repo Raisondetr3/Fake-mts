@@ -7,6 +7,7 @@ import ru.itmo.fake_mts.entity.UserStatus;
 import ru.itmo.fake_mts.exception.AuthenticationException;
 import ru.itmo.fake_mts.exception.InvalidPhoneNumberException;
 import ru.itmo.fake_mts.exception.UserNotFoundException;
+import ru.itmo.fake_mts.exception.WrongPhoneNumberException;
 import ru.itmo.fake_mts.repo.UserRepository;
 import ru.itmo.fake_mts.security.JwtService;
 import ru.itmo.fake_mts.dto.AuthRequest;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -60,6 +62,13 @@ public class UserService {
         User user = userRepository.findByPhoneNumber(phoneNumber)
                 .orElseThrow(() -> new UserNotFoundException("User with phone " + phoneNumber + " not found"));
 
+        String storedCode = codeStorage.getCodeForPhone(phoneNumber);
+
+        if (storedCode == null) {
+            throw new WrongPhoneNumberException("No code was found for the specified phone number." +
+                    " The code may have been sent to another number.");
+        }
+
         AuthStrategy strategy = strategies.stream()
                 .filter(s -> s.getAuthMethod() == user.getAuthMethod())
                 .findFirst()
@@ -78,8 +87,11 @@ public class UserService {
     }
 
     private String generateRandomCode() {
-        return "1234";
+        Random random = new Random();
+        int code = 1000 + random.nextInt(9000);
+        return String.valueOf(code);
     }
+
 
     public User patchUser(Long userId, UserPatchRequest patch) {
         User user = userRepository.findById(userId)
