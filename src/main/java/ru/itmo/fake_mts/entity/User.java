@@ -45,7 +45,8 @@ public class User implements UserDetails {
     private String emailBackup;
 
     @NotNull
-    private Double balance;
+    @Builder.Default
+    private Double balance = 0.0;
 
     @ManyToOne
     @JoinColumn(name = "tariff_id")

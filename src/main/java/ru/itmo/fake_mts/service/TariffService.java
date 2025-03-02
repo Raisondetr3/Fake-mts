@@ -2,6 +2,7 @@ package ru.itmo.fake_mts.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.itmo.fake_mts.dto.TariffPresentation;
 import ru.itmo.fake_mts.entity.Tariff;
 import ru.itmo.fake_mts.entity.User;
 import ru.itmo.fake_mts.exception.NotEnoughMoneyException;
@@ -19,15 +20,18 @@ public class TariffService {
 
     private final UserRepository userRepository;
 
-    public List<Tariff> getAllTariffs() {
-        return tariffRepository.findAll();
+    public List<TariffPresentation> getAllTariffs() {
+        return tariffRepository.findAll().stream()
+                .map(TariffPresentation::create).toList();
     }
 
-    public Tariff getById(Long tariffId) {
-        return tariffRepository.findById(tariffId).orElseThrow(() -> new TariffNotFoundException("Tariff not found"));
+    public TariffPresentation getById(Long tariffId) {
+        return tariffRepository.findById(tariffId)
+                .map(TariffPresentation::create)
+                .orElseThrow(() -> new TariffNotFoundException("Tariff not found"));
     }
 
-    public Boolean activateTariff(Long userId, Long tariffId) {
+    public String activateTariff(Long userId, Long tariffId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
@@ -43,6 +47,6 @@ public class TariffService {
 
         userRepository.save(user);
 
-        return true;
+        return "OK: tariff activated. User balance = " + user.getBalance();
     }
 }

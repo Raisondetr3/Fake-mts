@@ -2,7 +2,7 @@ package ru.itmo.fake_mts.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.itmo.fake_mts.entity.Operation;
+import ru.itmo.fake_mts.dto.OperationPresentation;
 import ru.itmo.fake_mts.entity.OperationType;
 import ru.itmo.fake_mts.entity.User;
 import ru.itmo.fake_mts.exception.UserNotFoundException;
@@ -19,14 +19,15 @@ public class OperationService {
 
     private final UserRepository userRepository;
 
-    public List<Operation> getOperationsByUserAndPeriod(Long userId, LocalDateTime periodStart, LocalDateTime periodEnd) {
+    public List<OperationPresentation> getOperationsByUserAndPeriod(Long userId, LocalDateTime periodStart, LocalDateTime periodEnd) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
-        return operationRepository.getOperationsByUserAndTimeBetween(user, periodStart, periodEnd);
+        return operationRepository.getOperationsByUserAndTimeBetween(user, periodStart, periodEnd).stream()
+                .map(OperationPresentation::create).toList();
     }
 
-    public List<Operation> getOperationsByUserAndPeriodAndType(
+    public List<OperationPresentation> getOperationsByUserAndPeriodAndType(
             Long userId,
             LocalDateTime periodStart, LocalDateTime periodEnd,
             OperationType operationType
@@ -38,10 +39,10 @@ public class OperationService {
                 user,
                 periodStart, periodEnd,
                 operationType
-        );
+        ).stream().map(OperationPresentation::create).toList();
     }
 
-    public List<Operation> getIncomeOperationsByUserAndPeriod(
+    public List<OperationPresentation> getIncomeOperationsByUserAndPeriod(
             Long userId,
             LocalDateTime periodStart, LocalDateTime periodEnd
     ) {
@@ -53,7 +54,7 @@ public class OperationService {
     }
 
 
-    public List<Operation> getOutcomeOperationsByUserAndPeriod(
+    public List<OperationPresentation> getOutcomeOperationsByUserAndPeriod(
             Long userId,
             LocalDateTime periodStart, LocalDateTime periodEnd
     ) {
@@ -64,7 +65,7 @@ public class OperationService {
         );
     }
 
-    public List<Operation> getCashbackOperationsByUserAndPeriod(
+    public List<OperationPresentation> getCashbackOperationsByUserAndPeriod(
             Long userId,
             LocalDateTime periodStart, LocalDateTime periodEnd
     ) {

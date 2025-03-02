@@ -2,7 +2,7 @@ package ru.itmo.fake_mts.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import ru.itmo.fake_mts.entity.Operation;
+import ru.itmo.fake_mts.dto.OperationPresentation;
 import ru.itmo.fake_mts.service.OperationService;
 
 import java.time.LocalDateTime;
@@ -15,7 +15,7 @@ public class OperationController {
     private final OperationService operationService;
 
     @GetMapping("/{userId}/all-by-period")
-    public List<Operation> getAllByPeriod(
+    public List<OperationPresentation> getAllByPeriod(
             @PathVariable Long userId,
             @RequestParam LocalDateTime periodStart,
             @RequestParam LocalDateTime periodEnd
@@ -28,7 +28,7 @@ public class OperationController {
     }
 
     @GetMapping("/{userId}/income-by-period")
-    public List<Operation> getIncomeByPeriod(
+    public List<OperationPresentation> getIncomeByPeriod(
             @PathVariable Long userId,
             @RequestParam LocalDateTime periodStart,
             @RequestParam LocalDateTime periodEnd
@@ -41,7 +41,7 @@ public class OperationController {
     }
 
     @GetMapping("/{userId}/outcome-by-period")
-    public List<Operation> getOutcomeByPeriod(
+    public List<OperationPresentation> getOutcomeByPeriod(
             @PathVariable Long userId,
             @RequestParam LocalDateTime periodStart,
             @RequestParam LocalDateTime periodEnd
@@ -54,7 +54,7 @@ public class OperationController {
     }
 
     @GetMapping("/{userId}/cashback-by-period")
-    public List<Operation> getCashbackByPeriod(
+    public List<OperationPresentation> getCashbackByPeriod(
             @PathVariable Long userId,
             @RequestParam LocalDateTime periodStart,
             @RequestParam LocalDateTime periodEnd
