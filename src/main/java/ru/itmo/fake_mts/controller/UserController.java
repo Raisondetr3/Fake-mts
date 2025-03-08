@@ -22,7 +22,7 @@ public class UserController {
         return userService.completeAuth(phoneNumber, request);
     }
 
-    @PatchMapping("/{userId}")
+    @PatchMapping
     public UserResponse patchUser(@RequestBody UserPatchRequest patch) {
         return userService.patchUser(patch);
     }
