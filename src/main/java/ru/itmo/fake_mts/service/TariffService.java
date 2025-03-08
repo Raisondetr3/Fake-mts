@@ -19,6 +19,7 @@ public class TariffService {
     private final TariffRepository tariffRepository;
 
     private final UserRepository userRepository;
+    private final CurrentUserService currentUserService;
 
     public List<TariffPresentation> getAllTariffs() {
         return tariffRepository.findAll().stream()
@@ -31,9 +32,8 @@ public class TariffService {
                 .orElseThrow(() -> new TariffNotFoundException("Tariff not found"));
     }
 
-    public String activateTariff(Long userId, Long tariffId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+    public String activateTariff(Long tariffId) {
+        User user = currentUserService.getCurrentUserOrThrow();
 
         Tariff tariff = tariffRepository.findById(tariffId)
                 .orElseThrow(() -> new TariffNotFoundException("Tariff not found"));

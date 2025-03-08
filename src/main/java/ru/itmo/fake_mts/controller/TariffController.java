@@ -23,8 +23,8 @@ public class TariffController {
         return tariffService.getById(tariffId);
     }
 
-    @PostMapping("/{userId}/activate-tariff")
-    public String activateTariff(@PathVariable Long userId, @RequestParam Long tariffId) {
-        return tariffService.activateTariff(userId, tariffId);
+    @PostMapping("activate-tariff")
+    public String activateTariff(@RequestParam Long tariffId) {
+        return tariffService.activateTariff(tariffId);
     }
 }
