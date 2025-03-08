@@ -2,7 +2,6 @@ package ru.itmo.fake_mts.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
 import ru.itmo.fake_mts.dto.ErrorResponse;
 
@@ -44,7 +43,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Object> handleAuthException(AuthenticationException ex) {
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.UNAUTHORIZED.value(),
-                "Неверное имя пользователя или пароль",
+                "Invalid sms code or password",
                 System.currentTimeMillis()
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
@@ -62,6 +61,36 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(WrongPhoneNumberException.class)
     public ResponseEntity<Object> handleWrongPhoneNumber(WrongPhoneNumberException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                ex.getMessage(),
+                System.currentTimeMillis()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(InvalidSnilsFormatException.class)
+    public ResponseEntity<Object> handleInvalidSnilsFormat(InvalidSnilsFormatException ex) {
+        var errorResponse = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                ex.getMessage(),
+                System.currentTimeMillis()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(InvalidInnFormatException.class)
+    public ResponseEntity<Object> handleInvalidInnOrInnFormat(InvalidInnFormatException ex) {
+        var errorResponse = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                ex.getMessage(),
+                System.currentTimeMillis()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(InvalidCardDataException.class)
+    public ResponseEntity<Object> handleInvalidCardData(InvalidCardDataException ex) {
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
                 ex.getMessage(),

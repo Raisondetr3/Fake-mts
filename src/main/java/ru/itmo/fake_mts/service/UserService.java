@@ -4,10 +4,7 @@ import ru.itmo.fake_mts.dto.*;
 import ru.itmo.fake_mts.entity.AuthMethod;
 import ru.itmo.fake_mts.entity.User;
 import ru.itmo.fake_mts.entity.UserStatus;
-import ru.itmo.fake_mts.exception.AuthenticationException;
-import ru.itmo.fake_mts.exception.InvalidPhoneNumberException;
-import ru.itmo.fake_mts.exception.UserNotFoundException;
-import ru.itmo.fake_mts.exception.WrongPhoneNumberException;
+import ru.itmo.fake_mts.exception.*;
 import ru.itmo.fake_mts.repo.UserRepository;
 import ru.itmo.fake_mts.security.JwtService;
 import ru.itmo.fake_mts.security.strategy.AuthStrategy;
@@ -19,11 +16,14 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;
 
+import static ru.itmo.fake_mts.entity.AuthMethod.SMS_ONLY;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
+    private final CurrentUserService currentUserService;
     private final SmsService smsService;
     private final CodeStorage codeStorage;
     private final List<AuthStrategy> strategies;
@@ -37,7 +37,7 @@ public class UserService {
         if (user == null) {
             user = User.builder()
                     .phoneNumber(phoneNumber)
-                    .authMethod(AuthMethod.SMS_ONLY)
+                    .authMethod(SMS_ONLY)
                     .status(UserStatus.ACTIVE)
                     .createdAt(LocalDateTime.now())
                     .build();
@@ -46,14 +46,14 @@ public class UserService {
 
         AuthMethod method = user.getAuthMethod();
 
-        if (method == AuthMethod.SMS_ONLY || method == AuthMethod.PASSWORD_SMS) {
+        if (method == SMS_ONLY || method == AuthMethod.PASSWORD_SMS) {
             String code = generateRandomCode();
             codeStorage.saveCodeForPhone(phoneNumber, code);
             smsService.sendSms(phoneNumber, code);
         }
 
         return StartAuthResponse.builder()
-                .message("OK: " + ((method == AuthMethod.SMS_ONLY || method == AuthMethod.PASSWORD_SMS)
+                .message("OK: " + ((method == SMS_ONLY || method == AuthMethod.PASSWORD_SMS)
                         ? "SMS code sent." : "no SMS needed."))
                 .authMethod(method.name())
                 .build();
@@ -67,7 +67,7 @@ public class UserService {
 
         String storedCode = codeStorage.getCodeForPhone(phoneNumber);
 
-        if (storedCode == null) {
+        if (user.getAuthMethod() == SMS_ONLY && storedCode == null) {
             throw new WrongPhoneNumberException("No code was found for the specified phone number." +
                     " The code may have been sent to another number.");
         }
@@ -82,7 +82,7 @@ public class UserService {
             throw new AuthenticationException("Authentication failed for method = " + user.getAuthMethod());
         }
 
-        if (user.getAuthMethod() == AuthMethod.SMS_ONLY || user.getAuthMethod() == AuthMethod.PASSWORD_SMS) {
+        if (user.getAuthMethod() == SMS_ONLY || user.getAuthMethod() == AuthMethod.PASSWORD_SMS) {
             codeStorage.removeCodeForPhone(phoneNumber);
         }
 
@@ -98,20 +98,23 @@ public class UserService {
         return String.valueOf(code);
     }
 
-
-    public UserResponse patchUser(Long userId, UserPatchRequest patch) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User with id " + userId + " not found"));
+    public UserResponse patchUser(UserPatchRequest patch) {
+        User user = currentUserService.getCurrentUserOrThrow();
 
         if (patch.getFullName() != null) {
             user.setFullName(patch.getFullName());
         }
+
         if (patch.getSnils() != null) {
+            validateSnils(patch.getSnils());
             user.setSnils(patch.getSnils());
         }
+
         if (patch.getInn() != null) {
+            validateInn(patch.getInn());
             user.setInn(patch.getInn());
         }
+
         if (patch.getReservePhone() != null) {
             user.setReservePhone(patch.getReservePhone());
         }
@@ -123,19 +126,31 @@ public class UserService {
         return UserResponse.fromEntity(updatedUser);
     }
 
-    public UserResponse changeAuthMethod(Long userId, AuthMethod newMethod, String rawPassword) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User with id " + userId + " not found"));
+    private void validateSnils(String snils) {
+        if (!snils.matches("\\d{11}")) {
+            throw new InvalidSnilsFormatException("Invalid format of SNILS");
+        }
+    }
 
+    private void validateInn(String inn) {
+        if (!inn.matches("\\d{12}")) {
+            throw new InvalidInnFormatException("Invalid format of INN");
+        }
+    }
 
-        user.setAuthMethod(newMethod);
-        if ((newMethod == AuthMethod.PASSWORD_ONLY || newMethod == AuthMethod.PASSWORD_SMS)
-                && rawPassword != null) {
-            user.setPassword(passwordEncoder.encode(rawPassword));
+    public UserIdResponse changeAuthMethod(ChangeAuthMethodRequest dto) {
+        User user = currentUserService.getCurrentUserOrThrow();
+
+        user.setAuthMethod(dto.getNewMethod());
+        if ((dto.getNewMethod() == AuthMethod.PASSWORD_ONLY
+                || dto.getNewMethod() == AuthMethod.PASSWORD_SMS)
+                && dto.getNewPassword() != null)
+        {
+            user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
         }
 
-        User updatedUser = userRepository.save(user);
-        return UserResponse.fromEntity(updatedUser);
+        userRepository.save(user);
+        return new UserIdResponse(user.getId());
     }
 
     private void validatePhoneNumber(String phoneNumber) {

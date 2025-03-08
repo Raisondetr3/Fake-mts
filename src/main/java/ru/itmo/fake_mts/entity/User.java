@@ -95,4 +95,17 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return this.status == UserStatus.ACTIVE;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return id != null && id.equals(user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }
