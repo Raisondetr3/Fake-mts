@@ -41,7 +41,6 @@ public class User implements UserDetails {
 
     private String snils;
     private String inn;
-    private String reservePhone;
     private String emailBackup;
 
     @NotNull
