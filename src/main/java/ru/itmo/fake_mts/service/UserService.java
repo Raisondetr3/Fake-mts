@@ -115,9 +115,6 @@ public class UserService {
             user.setInn(patch.getInn());
         }
 
-        if (patch.getReservePhone() != null) {
-            user.setReservePhone(patch.getReservePhone());
-        }
         if (patch.getEmailBackup() != null) {
             user.setEmailBackup(patch.getEmailBackup());
         }
