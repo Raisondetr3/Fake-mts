@@ -7,7 +7,6 @@ import ru.itmo.fake_mts.entity.Tariff;
 import ru.itmo.fake_mts.entity.User;
 import ru.itmo.fake_mts.exception.NotEnoughMoneyException;
 import ru.itmo.fake_mts.exception.TariffNotFoundException;
-import ru.itmo.fake_mts.exception.UserNotFoundException;
 import ru.itmo.fake_mts.repo.TariffRepository;
 import ru.itmo.fake_mts.repo.UserRepository;
 
@@ -19,6 +18,7 @@ public class TariffService {
     private final TariffRepository tariffRepository;
 
     private final UserRepository userRepository;
+
     private final CurrentUserService currentUserService;
 
     public List<TariffPresentation> getAllTariffs() {

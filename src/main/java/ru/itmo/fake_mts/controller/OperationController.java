@@ -14,53 +14,45 @@ import java.util.List;
 public class OperationController {
     private final OperationService operationService;
 
-    @GetMapping("/{userId}/all-by-period")
+    @GetMapping("/all-by-period")
     public List<OperationPresentation> getAllByPeriod(
-            @PathVariable Long userId,
             @RequestParam LocalDateTime periodStart,
             @RequestParam LocalDateTime periodEnd
     ) {
         return operationService.getOperationsByUserAndPeriod(
-                userId,
                 periodStart,
                 periodEnd
         );
     }
 
-    @GetMapping("/{userId}/income-by-period")
+    @GetMapping("/income-by-period")
     public List<OperationPresentation> getIncomeByPeriod(
-            @PathVariable Long userId,
             @RequestParam LocalDateTime periodStart,
             @RequestParam LocalDateTime periodEnd
     ) {
         return operationService.getIncomeOperationsByUserAndPeriod(
-                userId,
                 periodStart,
                 periodEnd
         );
     }
 
-    @GetMapping("/{userId}/outcome-by-period")
+    @GetMapping("/outcome-by-period")
     public List<OperationPresentation> getOutcomeByPeriod(
-            @PathVariable Long userId,
             @RequestParam LocalDateTime periodStart,
             @RequestParam LocalDateTime periodEnd
     ) {
         return operationService.getOutcomeOperationsByUserAndPeriod(
-                userId,
                 periodStart,
                 periodEnd
         );
     }
 
-    @GetMapping("/{userId}/cashback-by-period")
+    @GetMapping("/cashback-by-period")
     public List<OperationPresentation> getCashbackByPeriod(
-            @PathVariable Long userId,
             @RequestParam LocalDateTime periodStart,
             @RequestParam LocalDateTime periodEnd
     ) {
         return operationService.getCashbackOperationsByUserAndPeriod(
-                userId,
                 periodStart,
                 periodEnd
         );
