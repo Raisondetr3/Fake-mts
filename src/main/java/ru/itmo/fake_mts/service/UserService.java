@@ -115,8 +115,8 @@ public class UserService {
             user.setInn(patch.getInn());
         }
 
-        if (patch.getEmailBackup() != null) {
-            user.setEmailBackup(patch.getEmailBackup());
+        if (patch.getEmail() != null) {
+            user.setEmail(patch.getEmail());
         }
 
         User updatedUser = userRepository.save(user);

@@ -16,7 +16,6 @@ public class UserResponse {
     private String fullName;
     private String snils;
     private String inn;
-    private String emailBackup;
     private Double balance;
     private String authMethod;
     private String status;
@@ -30,7 +29,6 @@ public class UserResponse {
                 .fullName(user.getFullName())
                 .snils(user.getSnils())
                 .inn(user.getInn())
-                .emailBackup(user.getEmailBackup())
                 .balance(user.getBalance())
                 .authMethod(user.getAuthMethod().name())
                 .status(user.getStatus().name())

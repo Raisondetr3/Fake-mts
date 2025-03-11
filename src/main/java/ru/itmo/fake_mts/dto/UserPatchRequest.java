@@ -14,5 +14,5 @@ public class UserPatchRequest {
     private String inn;
 
     @Pattern(regexp = "^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$", message = "Incorrect email format")
-    private String emailBackup;
+    private String email;
 }
