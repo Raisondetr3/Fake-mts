@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import ru.itmo.fake_mts.dto.ErrorResponse;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -18,10 +17,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleException(Exception ex) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                 Map.of(
-                        "error", ex.getMessage(),
-                        "stackTrace", Arrays.toString(ex.getStackTrace())
+                        "error", ex.getMessage()
                 )
         );
     }
@@ -88,7 +86,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Object> handleAuthException(AuthenticationException ex) {
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.UNAUTHORIZED.value(),
-                "Invalid sms code or password",
+                "User is not authenticated",
                 System.currentTimeMillis()
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
