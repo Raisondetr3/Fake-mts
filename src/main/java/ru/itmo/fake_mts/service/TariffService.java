@@ -12,6 +12,7 @@ import ru.itmo.fake_mts.repo.TariffRepository;
 import ru.itmo.fake_mts.repo.UserRepository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Service
@@ -23,17 +24,17 @@ public class TariffService {
 
     private final CurrentUserService currentUserService;
 
-    public List<TariffPresentation> getAllTariffs() {
-        return tariffRepository.findAll().stream()
-                .map(TariffPresentation::create).toList();
-    }
+//    public List<TariffPresentation> getAllTariffs() {
+//        return tariffRepository.findAll().stream()
+//                .map(TariffPresentation::create).toList();
+//    }
 
     public List<TariffPresentation> getByConditions(Integer gigabyteCount, Integer minutesCount, Integer smsCount) {
         return tariffRepository.findAll().stream().filter(
                 tariff ->
                         (gigabyteCount == null || Objects.equals(tariff.getGigabyteCount(), gigabyteCount)) &&
-                        (minutesCount == null || Objects.equals(tariff.getGigabyteCount(), minutesCount)) &&
-                        (smsCount == null || Objects.equals(tariff.getGigabyteCount(), smsCount))
+                        (minutesCount == null || Objects.equals(tariff.getMinutesCount(), minutesCount)) &&
+                        (smsCount == null || Objects.equals(tariff.getSmsCount(), smsCount))
                 )
                 .map(TariffPresentation::create).toList();
     }
@@ -44,7 +45,7 @@ public class TariffService {
                 .orElseThrow(() -> new TariffNotFoundException("Tariff not found"));
     }
 
-    public String activateTariff(Long tariffId) {
+    public Map activateTariff(Long tariffId) {
         User user = currentUserService.getCurrentUserOrThrow();
 
         Tariff tariff = tariffRepository.findById(tariffId)
@@ -59,6 +60,6 @@ public class TariffService {
 
         userRepository.save(user);
 
-        return "OK: tariff activated. User balance = " + user.getBalance();
+        return Map.of("message", "OK: tariff activated. User balance = " + user.getBalance());
     }
 }

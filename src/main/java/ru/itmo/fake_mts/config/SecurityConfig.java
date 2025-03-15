@@ -53,7 +53,7 @@ public class SecurityConfig {
                     auth.requestMatchers("/api/users/start-auth/**").permitAll();
                     auth.requestMatchers("/api/users/complete-auth/**").permitAll();
 
-                    auth.requestMatchers("/api/tariffs/all/**").permitAll();
+                    auth.requestMatchers("/api/tariffs/**").permitAll();
                     auth.requestMatchers("/api/tariffs/{tariffId}/**").permitAll();
                     auth.requestMatchers("/api/users/complete-auth").permitAll();
                     auth.anyRequest().authenticated();

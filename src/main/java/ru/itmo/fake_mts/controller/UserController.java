@@ -28,7 +28,7 @@ public class UserController {
 
 
     @PatchMapping
-    public UserResponse patchUser(@RequestBody UserPatchRequest patch) {
+    public UserResponse patchUser(@RequestBody @Valid UserPatchRequest patch) {
         return userService.patchUser(patch);
     }
 
