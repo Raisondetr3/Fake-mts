@@ -8,6 +8,7 @@ import ru.itmo.fake_mts.dto.PaymentCardDto;
 import ru.itmo.fake_mts.entity.PaymentCard;
 import ru.itmo.fake_mts.entity.User;
 import ru.itmo.fake_mts.exception.InvalidCardDataException;
+import ru.itmo.fake_mts.exception.TariffNotFoundException;
 import ru.itmo.fake_mts.repo.PaymentCardRepository;
 
 import java.time.LocalDate;
@@ -49,7 +50,7 @@ public class PaymentCardService {
     public void deleteCard(Long cardId) {
         User user = currentUserService.getCurrentUserOrThrow();
         PaymentCard card = cardRepository.findById(cardId)
-                .orElseThrow(() -> new RuntimeException("Card not found"));
+                .orElseThrow(() -> new TariffNotFoundException("Card not found"));
         if (!card.getUser().getId().equals(user.getId())) {
             throw new RuntimeException("The card belongs to another user");
         }

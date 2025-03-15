@@ -32,6 +32,7 @@ public class PaymentCard {
     private Integer expiryYear;
 
     @NotNull
+    @Column(columnDefinition="TEXT")
     private String cardHolderName;
 }
 

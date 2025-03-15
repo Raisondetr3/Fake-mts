@@ -27,7 +27,7 @@ public class User implements UserDetails {
     @Column(unique = true)
     private String phoneNumber;
 
-    @Column(unique = true)
+    @Column(unique = true, columnDefinition="TEXT")
     private String email;
 
     private String password;
@@ -37,9 +37,13 @@ public class User implements UserDetails {
     @Builder.Default
     private AuthMethod authMethod = AuthMethod.SMS_ONLY;
 
+    @Column(columnDefinition="TEXT")
     private String fullName;
 
+    @Column(columnDefinition="TEXT")
     private String snils;
+
+    @Column(columnDefinition="TEXT")
     private String inn;
 
     @NotNull

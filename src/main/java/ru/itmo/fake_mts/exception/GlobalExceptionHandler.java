@@ -64,7 +64,17 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(TariffNotFoundException.class)
-    public ResponseEntity<Object> handleUserNotFound(TariffNotFoundException ex) {
+    public ResponseEntity<Object> handleTariffNotFound(TariffNotFoundException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.NOT_FOUND.value(),
+                ex.getMessage(),
+                System.currentTimeMillis()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(CardNotFoundException.class)
+    public ResponseEntity<Object> handleCardNotFound(CardNotFoundException ex) {
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.NOT_FOUND.value(),
                 ex.getMessage(),
@@ -106,7 +116,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(InvalidSnilsFormatException.class)
     public ResponseEntity<Object> handleInvalidSnilsFormat(InvalidSnilsFormatException ex) {
-        var errorResponse = new ErrorResponse(
+        ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
                 ex.getMessage(),
                 System.currentTimeMillis()
@@ -116,7 +126,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(InvalidInnFormatException.class)
     public ResponseEntity<Object> handleInvalidInnOrInnFormat(InvalidInnFormatException ex) {
-        var errorResponse = new ErrorResponse(
+        ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
                 ex.getMessage(),
                 System.currentTimeMillis()

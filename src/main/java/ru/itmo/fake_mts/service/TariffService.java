@@ -2,6 +2,7 @@ package ru.itmo.fake_mts.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 import ru.itmo.fake_mts.dto.TariffPresentation;
 import ru.itmo.fake_mts.entity.Tariff;
 import ru.itmo.fake_mts.entity.User;
@@ -11,6 +12,7 @@ import ru.itmo.fake_mts.repo.TariffRepository;
 import ru.itmo.fake_mts.repo.UserRepository;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +25,16 @@ public class TariffService {
 
     public List<TariffPresentation> getAllTariffs() {
         return tariffRepository.findAll().stream()
+                .map(TariffPresentation::create).toList();
+    }
+
+    public List<TariffPresentation> getByConditions(Integer gigabyteCount, Integer minutesCount, Integer smsCount) {
+        return tariffRepository.findAll().stream().filter(
+                tariff ->
+                        (gigabyteCount == null || Objects.equals(tariff.getGigabyteCount(), gigabyteCount)) &&
+                        (minutesCount == null || Objects.equals(tariff.getGigabyteCount(), minutesCount)) &&
+                        (smsCount == null || Objects.equals(tariff.getGigabyteCount(), smsCount))
+                )
                 .map(TariffPresentation::create).toList();
     }
 

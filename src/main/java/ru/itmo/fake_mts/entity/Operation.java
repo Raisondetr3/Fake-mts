@@ -20,8 +20,10 @@ public class Operation {
     private Long id;
 
     @NotNull
+    @Column(columnDefinition="TEXT")
     private String name;
 
+    @Column(columnDefinition="TEXT")
     private String description;
 
     @NotNull

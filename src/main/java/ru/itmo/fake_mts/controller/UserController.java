@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.itmo.fake_mts.dto.*;
@@ -50,7 +51,8 @@ public class UserController {
     }
 
     @PutMapping("/me/auth-method")
-    public UserIdResponse changeAuthMethod(@RequestBody ChangeAuthMethodRequest dto) {
-        return userService.changeAuthMethod(dto);
+    @ResponseStatus(HttpStatus.CREATED)
+    public void changeAuthMethod(@RequestBody ChangeAuthMethodRequest dto) {
+        userService.changeAuthMethod(dto);
     }
 }

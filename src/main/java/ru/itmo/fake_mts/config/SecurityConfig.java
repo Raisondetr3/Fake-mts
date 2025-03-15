@@ -42,7 +42,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(request -> {
-                    var c = new CorsConfiguration();
+                    CorsConfiguration c = new CorsConfiguration();
                     c.setAllowedOriginPatterns(List.of("*"));
                     c.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                     c.setAllowedHeaders(List.of("*"));
@@ -66,7 +66,7 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService) {
-        var provider = new DaoAuthenticationProvider();
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setUserDetailsService(userDetailsService);
         provider.setPasswordEncoder(passwordEncoder());
         return provider;

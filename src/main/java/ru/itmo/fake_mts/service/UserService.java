@@ -135,7 +135,7 @@ public class UserService {
         }
     }
 
-    public UserIdResponse changeAuthMethod(ChangeAuthMethodRequest dto) {
+    public void changeAuthMethod(ChangeAuthMethodRequest dto) {
         User user = currentUserService.getCurrentUserOrThrow();
 
         user.setAuthMethod(dto.getNewMethod());
@@ -147,7 +147,6 @@ public class UserService {
         }
 
         userRepository.save(user);
-        return new UserIdResponse(user.getId());
     }
 
     private void validatePhoneNumber(String phoneNumber) {
