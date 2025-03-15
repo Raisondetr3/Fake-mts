@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import ru.itmo.fake_mts.dto.AuthRequest;
+import ru.itmo.fake_mts.dto.CompleteAuthRequest;
 import ru.itmo.fake_mts.entity.AuthMethod;
 import ru.itmo.fake_mts.entity.User;
 
@@ -19,7 +20,7 @@ public class PasswordOnlyAuthStrategy implements AuthStrategy {
     }
 
     @Override
-    public boolean authenticate(User user, AuthRequest authRequest) {
+    public boolean authenticate(User user, CompleteAuthRequest authRequest) {
         if (authRequest.getPassword() == null) {
             return false;
         }

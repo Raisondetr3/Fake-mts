@@ -59,17 +59,17 @@ public class UserService {
                 .build();
     }
 
-    public AuthCompleteResponse completeAuth(String phoneNumber, AuthRequest authRequest) {
-        validatePhoneNumber(phoneNumber);
+    public AuthCompleteResponse completeAuth(CompleteAuthRequest request) {
+        validatePhoneNumber(request.getPhoneNumber());
 
-        User user = userRepository.findByPhoneNumber(phoneNumber)
-                .orElseThrow(() -> new UserNotFoundException("User with phone " + phoneNumber + " not found"));
+        User user = userRepository.findByPhoneNumber(request.getPhoneNumber())
+                .orElseThrow(() -> new UserNotFoundException("User with phone " + request.getPhoneNumber() + " not found"));
 
-        String storedCode = codeStorage.getCodeForPhone(phoneNumber);
+        String storedCode = codeStorage.getCodeForPhone(request.getPhoneNumber());
 
-        if (user.getAuthMethod() == SMS_ONLY && storedCode == null) {
-            throw new WrongPhoneNumberException("No code was found for the specified phone number." +
-                    " The code may have been sent to another number.");
+        if (user.getAuthMethod() == AuthMethod.SMS_ONLY && storedCode == null) {
+            throw new WrongPhoneNumberException("No code was found for the specified phone number. " +
+                    "The code may have been sent to another number.");
         }
 
         AuthStrategy strategy = strategies.stream()
@@ -77,13 +77,13 @@ public class UserService {
                 .findFirst()
                 .orElseThrow(() -> new AuthenticationException("No strategy for: " + user.getAuthMethod()));
 
-        boolean ok = strategy.authenticate(user, authRequest);
+        boolean ok = strategy.authenticate(user, request);
         if (!ok) {
-            throw new AuthenticationException("Authentication failed for method = " + user.getAuthMethod());
+            throw new WrongCredentialsException("Authentication failed for method = " + user.getAuthMethod());
         }
 
-        if (user.getAuthMethod() == SMS_ONLY || user.getAuthMethod() == AuthMethod.PASSWORD_SMS) {
-            codeStorage.removeCodeForPhone(phoneNumber);
+        if (user.getAuthMethod() == AuthMethod.SMS_ONLY || user.getAuthMethod() == AuthMethod.PASSWORD_SMS) {
+            codeStorage.removeCodeForPhone(request.getPhoneNumber());
         }
 
         String token = jwtService.generateToken(user);

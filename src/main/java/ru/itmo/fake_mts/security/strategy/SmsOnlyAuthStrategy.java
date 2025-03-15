@@ -3,6 +3,7 @@ package ru.itmo.fake_mts.security.strategy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.itmo.fake_mts.dto.AuthRequest;
+import ru.itmo.fake_mts.dto.CompleteAuthRequest;
 import ru.itmo.fake_mts.entity.AuthMethod;
 import ru.itmo.fake_mts.entity.User;
 import ru.itmo.fake_mts.service.CodeStorage;
@@ -19,7 +20,7 @@ public class SmsOnlyAuthStrategy implements AuthStrategy {
     }
 
     @Override
-    public boolean authenticate(User user, AuthRequest authRequest) {
+    public boolean authenticate(User user, CompleteAuthRequest authRequest) {
         String storedCode = codeStorage.getCodeForPhone(user.getPhoneNumber());
         System.out.println("Stored code: " + storedCode);
         System.out.println("Received code: " + authRequest.getSmsCode());
@@ -33,7 +34,7 @@ public class SmsOnlyAuthStrategy implements AuthStrategy {
         System.out.println("Authentication result: " + isValid);
         return isValid;
     }
-
 }
+
 
 
