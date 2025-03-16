@@ -1,9 +1,10 @@
 package ru.itmo.fake_mts.service;
 
+import org.springframework.transaction.annotation.Transactional;
 import ru.itmo.fake_mts.dto.*;
-import ru.itmo.fake_mts.entity.AuthMethod;
+import ru.itmo.fake_mts.entity.enums.AuthMethod;
 import ru.itmo.fake_mts.entity.User;
-import ru.itmo.fake_mts.entity.UserStatus;
+import ru.itmo.fake_mts.entity.enums.UserStatus;
 import ru.itmo.fake_mts.exception.*;
 import ru.itmo.fake_mts.repo.UserRepository;
 import ru.itmo.fake_mts.security.JwtService;
@@ -16,7 +17,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;
 
-import static ru.itmo.fake_mts.entity.AuthMethod.SMS_ONLY;
+import static ru.itmo.fake_mts.entity.enums.AuthMethod.SMS_ONLY;
 
 @Service
 @RequiredArgsConstructor
@@ -98,6 +99,7 @@ public class UserService {
         return String.valueOf(code);
     }
 
+    @Transactional
     public UserResponse patchUser(UserPatchRequest patch) {
         User user = currentUserService.getCurrentUserOrThrow();
 
@@ -135,6 +137,7 @@ public class UserService {
         }
     }
 
+    @Transactional
     public void changeAuthMethod(ChangeAuthMethodRequest dto) {
         User user = currentUserService.getCurrentUserOrThrow();
 

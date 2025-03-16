@@ -1,4 +1,4 @@
-package ru.itmo.fake_mts.exception;
+package ru.itmo.fake_mts.exception.handler;
 
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
@@ -10,6 +10,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import ru.itmo.fake_mts.dto.ErrorResponse;
+import ru.itmo.fake_mts.exception.*;
 
 import java.util.Map;
 import java.util.stream.Collectors;

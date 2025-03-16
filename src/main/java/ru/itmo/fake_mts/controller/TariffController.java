@@ -15,11 +15,6 @@ import java.util.Map;
 public class TariffController {
     private final TariffService tariffService;
 
-//    @GetMapping
-//    public List<TariffPresentation> getAll() {
-//        return tariffService.getAllTariffs();
-//    }
-
     @GetMapping
     public List<TariffPresentation> getByConditions(
             @RequestParam(required = false) Integer gigabyteCount,
@@ -36,7 +31,7 @@ public class TariffController {
 
     @RequestMapping(value = "/{tariffId}/activate-tariff", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public Map activateTariff(@PathVariable Long tariffId) {
+    public Map<String, String> activateTariff(@PathVariable Long tariffId) {
         return tariffService.activateTariff(tariffId);
     }
 }

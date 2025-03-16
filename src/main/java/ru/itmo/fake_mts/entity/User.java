@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import ru.itmo.fake_mts.entity.enums.AuthMethod;
+import ru.itmo.fake_mts.entity.enums.UserStatus;
 
 import java.time.LocalDateTime;
 import java.util.Collection;

@@ -3,6 +3,7 @@ package ru.itmo.fake_mts.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import ru.itmo.fake_mts.entity.enums.OperationType;
 
 import java.time.LocalDateTime;
 

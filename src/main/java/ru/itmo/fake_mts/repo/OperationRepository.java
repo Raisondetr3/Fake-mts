@@ -3,7 +3,7 @@ package ru.itmo.fake_mts.repo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import ru.itmo.fake_mts.entity.Operation;
-import ru.itmo.fake_mts.entity.OperationType;
+import ru.itmo.fake_mts.entity.enums.OperationType;
 import ru.itmo.fake_mts.entity.User;
 
 import java.time.LocalDateTime;

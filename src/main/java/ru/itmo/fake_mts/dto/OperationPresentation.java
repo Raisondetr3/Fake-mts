@@ -1,7 +1,7 @@
 package ru.itmo.fake_mts.dto;
 
 import ru.itmo.fake_mts.entity.Operation;
-import ru.itmo.fake_mts.entity.OperationType;
+import ru.itmo.fake_mts.entity.enums.OperationType;
 
 import java.time.LocalDateTime;
 

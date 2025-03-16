@@ -2,8 +2,9 @@ package ru.itmo.fake_mts.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.itmo.fake_mts.dto.OperationPresentation;
-import ru.itmo.fake_mts.entity.OperationType;
+import ru.itmo.fake_mts.entity.enums.OperationType;
 import ru.itmo.fake_mts.entity.User;
 import ru.itmo.fake_mts.repo.OperationRepository;
 
@@ -12,6 +13,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class OperationService {
     private final OperationRepository operationRepository;
 
@@ -22,19 +24,6 @@ public class OperationService {
 
         return operationRepository.getOperationsByUserAndTimeBetween(user, periodStart, periodEnd).stream()
                 .map(OperationPresentation::create).toList();
-    }
-
-    public List<OperationPresentation> getOperationsByUserAndPeriodAndType(
-            LocalDateTime periodStart, LocalDateTime periodEnd,
-            OperationType operationType
-    ) {
-        User user = currentUserService.getCurrentUserOrThrow();
-
-        return operationRepository.getOperationsByUserAndTimeBetweenAndOperationType(
-                user,
-                periodStart, periodEnd,
-                operationType
-        ).stream().map(OperationPresentation::create).toList();
     }
 
     public List<OperationPresentation> getIncomeOperationsByUserAndPeriod(
@@ -63,5 +52,18 @@ public class OperationService {
                 periodStart, periodEnd,
                 OperationType.CASHBACK
         );
+    }
+
+    private List<OperationPresentation> getOperationsByUserAndPeriodAndType(
+            LocalDateTime periodStart, LocalDateTime periodEnd,
+            OperationType operationType
+    ) {
+        User user = currentUserService.getCurrentUserOrThrow();
+
+        return operationRepository.getOperationsByUserAndTimeBetweenAndOperationType(
+                user,
+                periodStart, periodEnd,
+                operationType
+        ).stream().map(OperationPresentation::create).toList();
     }
 }
