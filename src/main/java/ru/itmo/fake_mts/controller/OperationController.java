@@ -14,48 +14,61 @@ import java.util.List;
 public class OperationController {
     private final OperationService operationService;
 
+    // Для всех пользователей (обычный пользователь получает только свои операции)
     @GetMapping("/all-by-period")
-    public List<OperationPresentation> getAllByPeriod(
+    public List<OperationPresentation> getMyOperationsByPeriod(
             @RequestParam LocalDateTime periodStart,
-            @RequestParam LocalDateTime periodEnd
-    ) {
-        return operationService.getOperationsByUserAndPeriod(
-                periodStart,
-                periodEnd
-        );
+            @RequestParam LocalDateTime periodEnd) {
+        return operationService.getOperationsByUserAndPeriod(periodStart, periodEnd);
     }
 
     @GetMapping("/income-by-period")
-    public List<OperationPresentation> getIncomeByPeriod(
+    public List<OperationPresentation> getMyIncomeOperationsByPeriod(
             @RequestParam LocalDateTime periodStart,
-            @RequestParam LocalDateTime periodEnd
-    ) {
-        return operationService.getIncomeOperationsByUserAndPeriod(
-                periodStart,
-                periodEnd
-        );
+            @RequestParam LocalDateTime periodEnd) {
+        return operationService.getMyIncomeOperationsByPeriod(periodStart, periodEnd);
     }
 
     @GetMapping("/outcome-by-period")
-    public List<OperationPresentation> getOutcomeByPeriod(
+    public List<OperationPresentation> getMyOutcomeOperationsByPeriod(
             @RequestParam LocalDateTime periodStart,
-            @RequestParam LocalDateTime periodEnd
-    ) {
-        return operationService.getOutcomeOperationsByUserAndPeriod(
-                periodStart,
-                periodEnd
-        );
+            @RequestParam LocalDateTime periodEnd) {
+        return operationService.getMyOutcomeOperationsByPeriod(periodStart, periodEnd);
     }
 
     @GetMapping("/cashback-by-period")
-    public List<OperationPresentation> getCashbackByPeriod(
+    public List<OperationPresentation> getMyCashbackOperationsByPeriod(
             @RequestParam LocalDateTime periodStart,
-            @RequestParam LocalDateTime periodEnd
-    ) {
-        return operationService.getCashbackOperationsByUserAndPeriod(
-                periodStart,
-                periodEnd
-        );
+            @RequestParam LocalDateTime periodEnd) {
+        return operationService.getMyCashbackOperationsByPeriod(periodStart, periodEnd);
+    }
+
+    // Эндпоинты для ADMIN для получения операций всех пользователей
+    @GetMapping("/admin/all-by-period")
+    public List<OperationPresentation> getAllOperationsByPeriod(
+            @RequestParam LocalDateTime periodStart,
+            @RequestParam LocalDateTime periodEnd) {
+        return operationService.getAllOperationsByPeriod(periodStart, periodEnd);
+    }
+
+    @GetMapping("/admin/income-by-period")
+    public List<OperationPresentation> getAllIncomeOperationsByPeriod(
+            @RequestParam LocalDateTime periodStart,
+            @RequestParam LocalDateTime periodEnd) {
+        return operationService.getAllIncomeOperationsByPeriod(periodStart, periodEnd);
+    }
+
+    @GetMapping("/admin/outcome-by-period")
+    public List<OperationPresentation> getAllOutcomeOperationsByPeriod(
+            @RequestParam LocalDateTime periodStart,
+            @RequestParam LocalDateTime periodEnd) {
+        return operationService.getAllOutcomeOperationsByPeriod(periodStart, periodEnd);
+    }
+
+    @GetMapping("/admin/cashback-by-period")
+    public List<OperationPresentation> getAllCashbackOperationsByPeriod(
+            @RequestParam LocalDateTime periodStart,
+            @RequestParam LocalDateTime periodEnd) {
+        return operationService.getAllCashbackOperationsByPeriod(periodStart, periodEnd);
     }
 }
-

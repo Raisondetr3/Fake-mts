@@ -11,7 +11,8 @@ public record OperationPresentation(
         String description,
         OperationType operationType,
         LocalDateTime time,
-        Double price
+        Double price,
+        UserPresentation user
 ) {
     public static OperationPresentation create(Operation operation) {
         return new OperationPresentation(
@@ -20,7 +21,12 @@ public record OperationPresentation(
                 operation.getDescription(),
                 operation.getOperationType(),
                 operation.getTime(),
-                operation.getPrice()
+                operation.getPrice(),
+                new UserPresentation(
+                        operation.getUser().getId(),
+                        operation.getUser().getPhoneNumber(),
+                        operation.getUser().getFullName()
+                )
         );
     }
 }

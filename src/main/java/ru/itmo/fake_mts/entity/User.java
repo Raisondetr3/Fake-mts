@@ -4,13 +4,19 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import ru.itmo.fake_mts.entity.enums.AdminRequestStatus;
 import ru.itmo.fake_mts.entity.enums.AuthMethod;
+import ru.itmo.fake_mts.entity.enums.Role;
 import ru.itmo.fake_mts.entity.enums.UserStatus;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "users")
@@ -64,16 +70,32 @@ public class User implements UserDetails {
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private Set<Role> roles = new HashSet<>(Set.of(Role.USER));
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    @Column(name = "admin_request_status", columnDefinition = "varchar(255) default 'NONE'")
+    private AdminRequestStatus adminRequestStatus = AdminRequestStatus.NONE;
+
+    public boolean isAdmin() {
+        return roles.contains(Role.ADMIN);
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        return roles.stream()
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
+                .collect(Collectors.toSet());
     }
 
     @Override
     public String getUsername() {
         return phoneNumber;
     }
-
 
     @Override
     public String getPassword() {

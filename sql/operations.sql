@@ -79,3 +79,12 @@ VALUES ('Начисление CASHBACK',
         25.00,
         3,
         '2023-06-28 19:27:01');
+
+
+INSERT INTO operations (name, description, operation_type, time, price, user_id, created_at)
+VALUES
+    ('Operation A', 'Income from sale', 'INCOME', '2025-03-15T12:00:00', 100.0, 1, '2025-03-15T12:00:00'),
+    ('Operation B', 'Payment for service', 'OUTCOME', '2025-03-15T13:00:00', 50.0, 1, '2025-03-15T13:00:00'),
+    ('Operation C', 'Cashback promo', 'CASHBACK', '2025-03-15T14:00:00', 10.0, 2, '2025-03-15T14:00:00'),
+    ('Operation D', 'Income from sale', 'INCOME', '2025-03-15T15:00:00', 200.0, 3, '2025-03-15T15:00:00'),
+    ('Operation E', 'Payment for product', 'OUTCOME', '2025-03-15T16:00:00', 75.0, 3, '2025-03-15T16:00:00');

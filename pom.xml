@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>ru.itmo</groupId>
-	<artifactId>fake-mts</artifactId>
+	<artifactId>fake_mts</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>fake-mts</name>
+	<name>fake_mts</name>
 	<description>Demo project for Spring Boot</description>
 	<url/>
 	<licenses>

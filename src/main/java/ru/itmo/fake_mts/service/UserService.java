@@ -1,6 +1,7 @@
 package ru.itmo.fake_mts.service;
 
 import org.springframework.transaction.annotation.Transactional;
+import ru.itmo.fake_mts.adminStatus.AdminRequestStatusHandler;
 import ru.itmo.fake_mts.dto.*;
 import ru.itmo.fake_mts.entity.enums.AuthMethod;
 import ru.itmo.fake_mts.entity.User;
@@ -31,6 +32,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
+    @Transactional
     public StartAuthResponse startAuth(String phoneNumber) {
         validatePhoneNumber(phoneNumber);
 

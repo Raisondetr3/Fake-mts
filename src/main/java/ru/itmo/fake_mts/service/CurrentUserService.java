@@ -32,6 +32,4 @@ public class CurrentUserService {
             throw new AuthenticationCredentialsNotFoundException("Authentication principal is not a UserDetails");
         }
     }
-
 }
-
