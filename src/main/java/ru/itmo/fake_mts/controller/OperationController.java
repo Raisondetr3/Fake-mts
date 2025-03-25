@@ -1,6 +1,7 @@
 package ru.itmo.fake_mts.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ru.itmo.fake_mts.dto.OperationPresentation;
 import ru.itmo.fake_mts.service.OperationService;
@@ -45,6 +46,7 @@ public class OperationController {
 
     // Эндпоинты для ADMIN для получения операций всех пользователей
     @GetMapping("/admin/all-by-period")
+    @PreAuthorize("hasRole('ADMIN')")
     public List<OperationPresentation> getAllOperationsByPeriod(
             @RequestParam LocalDateTime periodStart,
             @RequestParam LocalDateTime periodEnd) {
@@ -52,6 +54,7 @@ public class OperationController {
     }
 
     @GetMapping("/admin/income-by-period")
+    @PreAuthorize("hasRole('ADMIN')")
     public List<OperationPresentation> getAllIncomeOperationsByPeriod(
             @RequestParam LocalDateTime periodStart,
             @RequestParam LocalDateTime periodEnd) {
@@ -59,6 +62,7 @@ public class OperationController {
     }
 
     @GetMapping("/admin/outcome-by-period")
+    @PreAuthorize("hasRole('ADMIN')")
     public List<OperationPresentation> getAllOutcomeOperationsByPeriod(
             @RequestParam LocalDateTime periodStart,
             @RequestParam LocalDateTime periodEnd) {
@@ -66,6 +70,7 @@ public class OperationController {
     }
 
     @GetMapping("/admin/cashback-by-period")
+    @PreAuthorize("hasRole('ADMIN')")
     public List<OperationPresentation> getAllCashbackOperationsByPeriod(
             @RequestParam LocalDateTime periodStart,
             @RequestParam LocalDateTime periodEnd) {

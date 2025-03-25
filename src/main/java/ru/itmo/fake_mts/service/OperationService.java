@@ -37,10 +37,6 @@ public class OperationService {
 
     public List<OperationPresentation> getAllOperationsByPeriod(
             LocalDateTime periodStart, LocalDateTime periodEnd) {
-        User currentUser = currentUserService.getCurrentUserOrThrow();
-        if (!currentUser.isAdmin()) {
-            throw new AccessDeniedException("Only administrators can view all operations.");
-        }
         List<Operation> operations = operationRepository.getOperationsByTimeBetween(periodStart, periodEnd);
         return operations.stream()
                 .map(OperationPresentation::create)
@@ -59,10 +55,6 @@ public class OperationService {
 
     public List<OperationPresentation> getAllOperationsByPeriodAndType(
             LocalDateTime periodStart, LocalDateTime periodEnd, OperationType operationType) {
-        User currentUser = currentUserService.getCurrentUserOrThrow();
-        if (!currentUser.isAdmin()) {
-            throw new AccessDeniedException("Only administrators can view all operations.");
-        }
         List<Operation> operations = operationRepository.getOperationsByTimeBetweenAndOperationType(
                 periodStart, periodEnd, operationType);
         return operations.stream()
