@@ -4,9 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.itmo.fake_mts.dto.AdminRequestDTO;
+import ru.itmo.fake_mts.dto.SimpleResponse;
 import ru.itmo.fake_mts.entity.User;
 import ru.itmo.fake_mts.entity.enums.AdminRequestStatus;
 import ru.itmo.fake_mts.entity.enums.Role;
+import ru.itmo.fake_mts.exception.AdminAlreadyGrantedException;
 import ru.itmo.fake_mts.exception.AdminRequestNotFoundException;
 import ru.itmo.fake_mts.exception.UserNotFoundException;
 import ru.itmo.fake_mts.repo.UserRepository;
@@ -26,42 +28,37 @@ public class AdminRequestService {
     private final Map<String, AdminRequestStatusHandler> statusHandlers;
     private final CurrentUserService currentUserService;
 
-    @Transactional(readOnly = true)
-    public boolean doesAdminExist() {
-        return userRepository.existsByRolesContaining(Role.ADMIN);
-    }
-
     @Transactional
-    public String requestAdminApproval() {
+    public SimpleResponse requestAdminApproval() {
         User user = currentUserService.getCurrentUserOrThrow();
 
-        if (user.isAdmin()) {
-            throw new IllegalArgumentException("User already has ADMIN rights.");
+        if (user.getRoles().contains(Role.ADMIN)) {
+            throw new AdminAlreadyGrantedException("User already has ADMIN rights.");
         }
 
-        if (!doesAdminExist()) {
+        if (userRepository.existsByRolesContaining(Role.ADMIN)) {
+            user.setAdminRequestStatus(AdminRequestStatus.PENDING);
+            userRepository.save(user);
+            return new SimpleResponse("The request for ADMIN rights has been submitted for review.");
+        } else {
             Set<Role> roles = new HashSet<>(user.getRoles());
             roles.add(Role.ADMIN);
             user.setRoles(roles);
             user.setAdminRequestStatus(AdminRequestStatus.ACCEPTED);
             userRepository.save(user);
-            return "There are no administrators in the system. The user has been granted ADMIN rights immediately.";
-        } else {
-            user.setAdminRequestStatus(AdminRequestStatus.PENDING);
-            userRepository.save(user);
-            return "The request for ADMIN rights has been submitted for review.";
+            return new SimpleResponse("There are no administrators in the system. The user has been granted ADMIN rights immediately.");
         }
     }
 
     @Transactional(readOnly = true)
-    public String getAdminRequestStatus() {
+    public SimpleResponse getAdminRequestStatus() {
         User user = currentUserService.getCurrentUserOrThrow();
 
         AdminRequestStatusHandler handler = statusHandlers.get(user.getAdminRequestStatus().name());
         if (handler == null) {
             throw new IllegalStateException("Handler not found for status: " + user.getAdminRequestStatus());
         }
-        return handler.getStatusMessage();
+        return new SimpleResponse(handler.getStatusMessage());
     }
 
     @Transactional(readOnly = true)

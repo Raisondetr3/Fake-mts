@@ -81,10 +81,6 @@ public class User implements UserDetails {
     @Column(name = "admin_request_status", columnDefinition = "varchar(255) default 'NONE'")
     private AdminRequestStatus adminRequestStatus = AdminRequestStatus.NONE;
 
-    public boolean isAdmin() {
-        return roles.contains(Role.ADMIN);
-    }
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream()
