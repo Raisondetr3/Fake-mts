@@ -1,13 +1,12 @@
 package ru.itmo.fake_mts.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.itmo.fake_mts.dto.OperationPresentation;
 import ru.itmo.fake_mts.entity.Operation;
-import ru.itmo.fake_mts.entity.enums.OperationType;
 import ru.itmo.fake_mts.entity.User;
+import ru.itmo.fake_mts.entity.enums.OperationType;
 import ru.itmo.fake_mts.repo.OperationRepository;
 
 import java.time.LocalDateTime;
@@ -43,7 +42,7 @@ public class OperationService {
                 .toList();
     }
 
-    public List<OperationPresentation> getMyOperationsByPeriodAndType(
+    private List<OperationPresentation> getMyOperationsByPeriodAndType(
             LocalDateTime periodStart, LocalDateTime periodEnd, OperationType operationType) {
         User currentUser = currentUserService.getCurrentUserOrThrow();
         List<Operation> operations = operationRepository.getOperationsByUserAndTimeBetweenAndOperationType(
@@ -53,7 +52,7 @@ public class OperationService {
                 .toList();
     }
 
-    public List<OperationPresentation> getAllOperationsByPeriodAndType(
+    private List<OperationPresentation> getAllOperationsByPeriodAndType(
             LocalDateTime periodStart, LocalDateTime periodEnd, OperationType operationType) {
         List<Operation> operations = operationRepository.getOperationsByTimeBetweenAndOperationType(
                 periodStart, periodEnd, operationType);
