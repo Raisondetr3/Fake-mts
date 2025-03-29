@@ -78,7 +78,7 @@ public class User implements UserDetails {
     @NotNull
     @Enumerated(EnumType.STRING)
     @Builder.Default
-    @Column(name = "admin_request_status", columnDefinition = "varchar(255) default 'NONE'")
+    @Column(name = "admin_request_status", columnDefinition = "TEXT")
     private AdminRequestStatus adminRequestStatus = AdminRequestStatus.NONE;
 
     @Override

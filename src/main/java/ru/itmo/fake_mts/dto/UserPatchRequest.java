@@ -1,6 +1,7 @@
 package ru.itmo.fake_mts.dto;
 
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Positive;
 import lombok.Data;
 import org.springframework.validation.annotation.Validated;
 
@@ -20,4 +21,7 @@ public class UserPatchRequest {
             message = "Incorrect email format"
     )
     private String email;
+
+    @Positive
+    private Double balance;
 }

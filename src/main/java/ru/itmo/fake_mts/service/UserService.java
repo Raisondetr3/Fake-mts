@@ -122,6 +122,10 @@ public class UserService {
             user.setEmail(patch.getEmail());
         }
 
+        if (patch.getBalance() != null) {
+            user.setBalance(patch.getBalance());
+        }
+
         User updatedUser = userRepository.save(user);
         return UserResponse.fromEntity(updatedUser);
     }
