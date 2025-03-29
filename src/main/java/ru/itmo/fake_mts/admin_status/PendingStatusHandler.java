@@ -2,7 +2,7 @@ package ru.itmo.fake_mts.admin_status;
 
 import org.springframework.stereotype.Component;
 
-@Component("PENDING")
+@Component
 public class PendingStatusHandler implements AdminRequestStatusHandler {
     @Override
     public String getStatusMessage() {

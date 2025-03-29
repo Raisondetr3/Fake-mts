@@ -20,7 +20,7 @@ public class OperationController {
     public List<OperationPresentation> getMyOperationsByPeriod(
             @RequestParam LocalDateTime periodStart,
             @RequestParam LocalDateTime periodEnd) {
-        return operationService.getOperationsByUserAndPeriod(periodStart, periodEnd);
+        return operationService.getMyOperationsByPeriod(periodStart, periodEnd);
     }
 
     @GetMapping("/income-by-period")
@@ -75,5 +75,42 @@ public class OperationController {
             @RequestParam LocalDateTime periodStart,
             @RequestParam LocalDateTime periodEnd) {
         return operationService.getAllCashbackOperationsByPeriod(periodStart, periodEnd);
+    }
+
+    // Эндпоинты для ADMIN для получения операций конкретного пользователя
+    @GetMapping("/{userId}/all-by-period")
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<OperationPresentation> getUserOperationsByPeriod(
+            @PathVariable Long userId,
+            @RequestParam LocalDateTime periodStart,
+            @RequestParam LocalDateTime periodEnd) {
+        return operationService.getUserOperationsByPeriod(userId, periodStart, periodEnd);
+    }
+
+    @GetMapping("/{userId}/income-by-period")
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<OperationPresentation> getUserIncomeOperationsByPeriod(
+            @PathVariable Long userId,
+            @RequestParam LocalDateTime periodStart,
+            @RequestParam LocalDateTime periodEnd) {
+        return operationService.getUserIncomeOperationsByPeriod(userId, periodStart, periodEnd);
+    }
+
+    @GetMapping("/{userId}/outcome-by-period")
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<OperationPresentation> getUserOutcomeOperationsByPeriod(
+            @PathVariable Long userId,
+            @RequestParam LocalDateTime periodStart,
+            @RequestParam LocalDateTime periodEnd) {
+        return operationService.getUserOutcomeOperationsByPeriod(userId, periodStart, periodEnd);
+    }
+
+    @GetMapping("/{userId}/cashback-by-period")
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<OperationPresentation> getUserCashbackOperationsByPeriod(
+            @PathVariable Long userId,
+            @RequestParam LocalDateTime periodStart,
+            @RequestParam LocalDateTime periodEnd) {
+        return operationService.getUserCashbackOperationsByPeriod(userId, periodStart, periodEnd);
     }
 }

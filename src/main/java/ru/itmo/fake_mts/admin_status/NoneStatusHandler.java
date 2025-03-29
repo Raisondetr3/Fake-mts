@@ -2,7 +2,7 @@ package ru.itmo.fake_mts.admin_status;
 
 import org.springframework.stereotype.Component;
 
-@Component("NONE")
+@Component
 public class NoneStatusHandler implements AdminRequestStatusHandler {
     @Override
     public String getStatusMessage() {

@@ -3,6 +3,7 @@ package ru.itmo.fake_mts.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.itmo.fake_mts.admin_status.*;
 import ru.itmo.fake_mts.dto.AdminRequestDTO;
 import ru.itmo.fake_mts.dto.SimpleResponse;
 import ru.itmo.fake_mts.entity.User;
@@ -12,7 +13,6 @@ import ru.itmo.fake_mts.exception.AdminAlreadyGrantedException;
 import ru.itmo.fake_mts.exception.AdminRequestNotFoundException;
 import ru.itmo.fake_mts.exception.UserNotFoundException;
 import ru.itmo.fake_mts.repo.UserRepository;
-import ru.itmo.fake_mts.admin_status.AdminRequestStatusHandler;
 
 import java.util.HashSet;
 import java.util.List;
@@ -25,7 +25,13 @@ import java.util.stream.Collectors;
 public class AdminRequestService {
 
     private final UserRepository userRepository;
-    private final Map<String, AdminRequestStatusHandler> statusHandlers;
+    private final Map<String, AdminRequestStatusHandler> statusHandlers = Map.of(
+            "ACCEPTED", new AcceptedStatusHandler(),
+            "NONE", new NoneStatusHandler(),
+            "PENDING", new PendingStatusHandler(),
+            "REJECTED", new RejectedStatusHandler()
+    );
+
     private final CurrentUserService currentUserService;
 
     @Transactional
