@@ -2,13 +2,10 @@ package ru.itmo.common.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
-public class AdminMailMessage {
-    private Long userId;
+public class AdminRequestMessage {
     private String email;
-    private String fullName;
+    private String message;
 }

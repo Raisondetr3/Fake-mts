@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 public class MqttProps {
     private String brokerUrl;
     private String clientId;
-    private String topic;
+    private String smsTopic;
+    private String adminTopic;
 }
 

@@ -1,19 +1,21 @@
 package ru.itmo.node_b_worker.listener;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.jms.annotation.JmsListener;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
-import ru.itmo.common.dto.AdminMailMessage;
-import ru.itmo.node_b_worker.service.EmailNotifier;
+import ru.itmo.common.dto.AdminRequestMessage;
+import ru.itmo.node_b_worker.service.EmailService;
 
 @Component
 @RequiredArgsConstructor
-class AdminRequestListener {
+public class AdminRequestListener {
+    private final EmailService emailService;
 
-    private final EmailNotifier emailNotifier;
-
-    @JmsListener(destination = "admin.queue", containerFactory = "jmsListenerContainerFactory")
-    public void onAdmin(AdminMailMessage dto) {
-        emailNotifier.notifyAdmins(dto);
+    @RabbitListener(
+            queues = "admin.queue",
+            containerFactory = "rabbitListenerContainerFactory"
+    )
+    public void onAdminRequestMessage(AdminRequestMessage message) {
+        emailService.sendEmail(message.getEmail(), message.getMessage());
     }
 }

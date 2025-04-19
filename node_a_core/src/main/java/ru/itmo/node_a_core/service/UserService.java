@@ -30,6 +30,7 @@ public class UserService {
     private final List<AuthStrategy> strategies;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final MqttPublisherService publisher;
 
     @Transactional
     public StartAuthResponse startAuth(String phoneNumber) {
@@ -51,7 +52,7 @@ public class UserService {
         if (method == SMS_ONLY || method == AuthMethod.PASSWORD_SMS) {
             String code = generateRandomCode();
             codeStorage.saveCodeForPhone(phoneNumber, code);
-            smsService.sendSms(phoneNumber, code);
+            publisher.publish(new SmsMessage(phoneNumber, code), "sms.queue");
         }
 
         return StartAuthResponse.builder()

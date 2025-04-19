@@ -1,10 +1,12 @@
 package ru.itmo.node_a_core.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.itmo.common.admin_status.*;
 import ru.itmo.common.dto.AdminRequestDTO;
+import ru.itmo.common.dto.AdminRequestMessage;
 import ru.itmo.common.dto.SimpleResponse;
 import ru.itmo.common.entity.User;
 import ru.itmo.common.entity.enums.AdminRequestStatus;
@@ -13,6 +15,7 @@ import ru.itmo.common.exception.AdminAlreadyGrantedException;
 import ru.itmo.common.exception.AdminRequestNotFoundException;
 import ru.itmo.common.exception.UserNotFoundException;
 import ru.itmo.common.repo.UserRepository;
+import ru.itmo.node_a_core.config.MqttProps;
 
 import java.util.HashSet;
 import java.util.List;
@@ -25,6 +28,7 @@ import java.util.stream.Collectors;
 public class AdminRequestService {
 
     private final UserRepository userRepository;
+    private final MqttPublisherService publisher;
     private final Map<String, AdminRequestStatusHandler> statusHandlers = Map.of(
             "ACCEPTED", new AcceptedStatusHandler(),
             "NONE", new NoneStatusHandler(),
@@ -45,6 +49,10 @@ public class AdminRequestService {
         if (userRepository.existsByRolesContaining(Role.ADMIN)) {
             user.setAdminRequestStatus(AdminRequestStatus.PENDING);
             userRepository.save(user);
+
+            publisher.publish(new AdminRequestMessage(user.getEmail(), "Request for admin approval submitted"),
+                    "admin.queue");
+
             return new SimpleResponse("The request for ADMIN rights has been submitted for review.");
         } else {
             Set<Role> roles = new HashSet<>(user.getRoles());
@@ -52,7 +60,8 @@ public class AdminRequestService {
             user.setRoles(roles);
             user.setAdminRequestStatus(AdminRequestStatus.ACCEPTED);
             userRepository.save(user);
-            return new SimpleResponse("There are no administrators in the system. The user has been granted ADMIN rights immediately.");
+            return new SimpleResponse("There are no administrators in the system." +
+                    " The user has been granted ADMIN rights immediately.");
         }
     }
 
