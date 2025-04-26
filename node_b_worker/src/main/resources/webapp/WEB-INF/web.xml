@@ -4,9 +4,4 @@
                              https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
          version="5.0">
     <display-name>NodeB Worker</display-name>
-    <resource-ref>
-        <res-ref-name>mail/Default</res-ref-name>
-        <res-type>javax.mail.Session</res-type>
-        <res-auth>Container</res-auth>
-    </resource-ref>
 </web-app>

@@ -11,7 +11,7 @@ import ru.itmo.node_b_worker.service.EmailService;
 @RequiredArgsConstructor
 @Slf4j
 public class AdminRequestListener {
-    private final EmailService emailService;
+//    private final EmailService emailService;
 
     @RabbitListener(
             queues = "admin.queue",
@@ -20,6 +20,6 @@ public class AdminRequestListener {
     public void onAdminRequestMessage(AdminRequestMessage message) {
 //        System.out.print("AdminRequestListener loog");
         log.info("AdminRequestListener loog");
-        emailService.sendEmail(message.getEmail(), message.getMessage());
+//        emailService.sendEmail(message.getEmail(), message.getMessage());
     }
 }
