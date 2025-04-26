@@ -1,0 +1,13 @@
+/subsystem=resource-adapters/resource-adapter=my-email:add(archive=my-email-adapter.rar)
+/subsystem=resource-adapters/resource-adapter=my-email/connection-definitions=myEmailCF:add(
+    class-name=com.example.ra.EmailConnectionFactoryImpl,
+    jndi-name=eis/EmailCF,
+    enabled=true,
+    max-pool-size=10,
+    config-properties={
+        "smtpHost"="smtp.yandex.ru",
+        "smtpPort"="465",
+        "username"="",
+        "password"=""
+    })
+:reload

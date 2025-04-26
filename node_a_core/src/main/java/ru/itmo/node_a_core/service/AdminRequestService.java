@@ -103,6 +103,9 @@ public class AdminRequestService {
         user.setRoles(roles);
         user.setAdminRequestStatus(AdminRequestStatus.ACCEPTED);
         userRepository.save(user);
+
+        publisher.publish(new AdminRequestMessage(user.getEmail(), "Request for admin approval approved"),
+                "admin.queue");
     }
 
     @Transactional
@@ -116,5 +119,8 @@ public class AdminRequestService {
 
         user.setAdminRequestStatus(AdminRequestStatus.REJECTED);
         userRepository.save(user);
+
+        publisher.publish(new AdminRequestMessage(user.getEmail(), "Request for admin approval rejected"),
+                "admin.queue");
     }
 }
