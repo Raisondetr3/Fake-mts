@@ -27,7 +27,7 @@ public class EmailService {
 
         //TODO вынести отсюда
         //логин и пароль yandex mail пользователя
-        String userLogin = "367149@edu.itmo.ru";
+        String userLogin = "";
 
         String userPassword = "";
 
