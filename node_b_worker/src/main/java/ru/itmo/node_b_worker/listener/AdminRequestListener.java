@@ -18,8 +18,6 @@ public class AdminRequestListener {
             containerFactory = "rabbitListenerContainerFactory"
     )
     public void onAdminRequestMessage(AdminRequestMessage message) {
-//        System.out.print("AdminRequestListener loog");
-        log.info("AdminRequestListener loog");
         emailService.sendEmail(message.getEmail(), message.getMessage());
     }
 }

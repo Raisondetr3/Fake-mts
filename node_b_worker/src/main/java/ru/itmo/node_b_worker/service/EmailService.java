@@ -1,22 +1,27 @@
 package ru.itmo.node_b_worker.service;
 
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.Properties;
 
 @Service
 @Slf4j
 public class EmailService {
+    @Value("${EMAIL_USER_LOGIN}")
+    private String userLogin;
+
+    @Value("${EMAIL_USER_PASSWORD}")
+    private String userPassword;
+
     @SneakyThrows
     public void sendEmail(String emailTo, String messageText) {
-//        System.out.print("EmailService: " + emailTo + " " + messageText);
-        log.info("EmailService: {} {}", emailTo, messageText);
+        log.info("Send email to {} with text {}", emailTo, messageText);
         if (emailTo == null) return;
         Properties props = new Properties();
         props.put("mail.smtp.starttls.enable", "true");//Enable tls session
@@ -25,12 +30,7 @@ public class EmailService {
         props.put("mail.smtp.host", "smtp.yandex.ru");//Server's host
         props.put("mail.smtp.port", "465");//Server's port
 
-
-        String userLogin = "aakuma1337@yandex.ru";
-
-        String userPassword = "Igor17070!";
-
-        Session session = Session.getDefaultInstance(props,
+        Session session = Session.getInstance(props,
                 new Authenticator() {
                     @Override
                     protected PasswordAuthentication getPasswordAuthentication() {
