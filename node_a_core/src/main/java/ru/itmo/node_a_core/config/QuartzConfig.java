@@ -1,6 +1,9 @@
 package ru.itmo.node_a_core.config;
 
+import org.quartz.CalendarIntervalScheduleBuilder;
 import org.quartz.JobDetail;
+import org.quartz.Trigger;
+import org.quartz.TriggerBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.quartz.CronTriggerFactoryBean;
@@ -27,13 +30,17 @@ public class QuartzConfig {
     }
 
     @Bean
-    public CronTriggerFactoryBean tariffContinuationTrigger(JobDetail tariffContinuationJobDetail) {
-        CronTriggerFactoryBean factoryBean = new CronTriggerFactoryBean();
-        factoryBean.setJobDetail(tariffContinuationJobDetail);
-        factoryBean.setStartDelay(0);
-        // At 00:00:00am, on the 1st day, every month
-        factoryBean.setCronExpression("0 0 0 1 * ? *");
-        return factoryBean;
+    public Trigger tariffContinuationTrigger(JobDetail tariffContinuationJobDetail) {
+        return TriggerBuilder.newTrigger()
+                .forJob(tariffContinuationJobDetail)
+                .withIdentity("tariffContinuationTrigger", "billing")
+                .startNow()
+                .withSchedule(
+                        CalendarIntervalScheduleBuilder
+                                .calendarIntervalSchedule()
+                                .withIntervalInMonths(1)
+                )
+                .build();
     }
 
     @Bean

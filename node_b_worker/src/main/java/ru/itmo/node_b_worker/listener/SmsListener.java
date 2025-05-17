@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 import ru.itmo.common.dto.SmsMessage;
 import ru.itmo.node_b_worker.service.SmsService;
 
-
 @Component
 @RequiredArgsConstructor
 public class SmsListener {

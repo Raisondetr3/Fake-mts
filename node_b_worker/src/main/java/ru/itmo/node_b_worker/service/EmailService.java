@@ -4,9 +4,9 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import javax.mail.*;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.*;
+import jakarta.mail.*;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
 import java.util.Date;
 import java.util.Properties;
 
@@ -25,11 +25,10 @@ public class EmailService {
         props.put("mail.smtp.host", "smtp.yandex.ru");//Server's host
         props.put("mail.smtp.port", "465");//Server's port
 
-        //TODO вынести отсюда
-        //логин и пароль yandex mail пользователя
-        String userLogin = "";
 
-        String userPassword = "";
+        String userLogin = "aakuma1337@yandex.ru";
+
+        String userPassword = "Igor17070!";
 
         Session session = Session.getDefaultInstance(props,
                 new Authenticator() {

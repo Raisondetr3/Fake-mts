@@ -26,7 +26,6 @@ public class UserController {
         return userService.completeAuth(request);
     }
 
-
     @PatchMapping
     public UserResponse patchUser(@RequestBody @Valid UserPatchRequest patch) {
         return userService.patchUser(patch);
