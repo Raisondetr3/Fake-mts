@@ -23,17 +23,16 @@ import org.springframework.web.WebApplicationInitializer;
 @EntityScan(basePackages = {
         "ru.itmo.common.entity"
 })
-public class NodeACoreApplication extends SpringBootServletInitializer implements WebApplicationInitializer {
-    @Override
-    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-        return application.sources(NodeACoreApplication.class);
-    }
-
+public class NodeACoreApplication {
     public static void main(String[] args) {
-        Dotenv dotenv = Dotenv.configure().load();
-        dotenv.entries().forEach(entry -> System.setProperty(entry.getKey(), entry.getValue()));
+        Dotenv dotenv = Dotenv.configure()
+                .directory("../")
+                .filename(".env")
+                .load();
+        dotenv.entries().forEach(entry ->
+                System.setProperty(entry.getKey(), entry.getValue())
+        );
 
         SpringApplication.run(NodeACoreApplication.class, args);
     }
-
 }

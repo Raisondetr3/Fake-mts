@@ -1,15 +1,17 @@
 package ru.itmo.node_b_worker;
 
 import io.github.cdimascio.dotenv.Dotenv;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.web.WebApplicationInitializer;
+import ru.itmo.node_b_worker.service.EmailService;
 
+@Slf4j
 @SpringBootApplication(
 		exclude = {RabbitAutoConfiguration.class},
 		scanBasePackages = {
@@ -23,17 +25,24 @@ import org.springframework.web.WebApplicationInitializer;
 @EntityScan(basePackages = {
 		"ru.itmo.common.entity"
 })
-public class NodeBWorkerApplication extends SpringBootServletInitializer implements WebApplicationInitializer {
-	@Override
-	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-		return application.sources(NodeBWorkerApplication.class);
-	}
-
+public class NodeBWorkerApplication {
 	public static void main(String[] args) {
-		Dotenv dotenv = Dotenv.configure().load();
-		dotenv.entries().forEach(entry -> System.setProperty(entry.getKey(), entry.getValue()));
+		Dotenv dotenv = Dotenv.configure()
+				.directory("../")
+				.filename(".env")
+				.load();
+		dotenv.entries().forEach(entry ->
+				System.setProperty(entry.getKey(), entry.getValue())
+		);
 
 		SpringApplication.run(NodeBWorkerApplication.class, args);
 	}
 
+	@Bean
+	public ApplicationRunner testMailer(EmailService emailService) {
+		return args -> {
+			emailService.sendEmail("Aakuma1337@gmail.com", "test+");
+			log.info("SSendm");
+		};
+	}
 }

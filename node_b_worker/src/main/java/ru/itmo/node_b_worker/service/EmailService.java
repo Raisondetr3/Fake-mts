@@ -37,6 +37,7 @@ public class EmailService {
                         return new PasswordAuthentication(userLogin, userPassword);
                     }
                 });
+        session.setDebug(true);
 
         MimeMessage message = new MimeMessage(session);
         message.setFrom(new InternetAddress(userLogin));
@@ -46,11 +47,5 @@ public class EmailService {
         message.setSentDate(new Date());
 
         Transport.send(message);
-    }
-
-    public static void main(String[] args) {
-        EmailService emailService = new EmailService();
-
-        emailService.sendEmail("367149@edu.itmo.ru", "test");
     }
 }
