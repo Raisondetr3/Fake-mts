@@ -1,15 +1,14 @@
 package ru.itmo.node_a_core;
 
 import io.github.cdimascio.dotenv.Dotenv;
+import org.camunda.bpm.spring.boot.starter.annotation.EnableProcessApplication;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.web.WebApplicationInitializer;
 
+@EnableProcessApplication
 @SpringBootApplication(
         exclude = {RabbitAutoConfiguration.class},
         scanBasePackages = {
