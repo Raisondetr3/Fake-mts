@@ -3,10 +3,12 @@ package ru.itmo.node_a_core.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.*;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -41,31 +43,41 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
-                                                   JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
+                                                   JwtAuthenticationFilter jwtAuthFilter) throws Exception {
+
         http
-                .csrf(csrf -> csrf.disable())
+                .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration c = new CorsConfiguration();
                     c.setAllowedOriginPatterns(List.of("*"));
-                    c.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                    c.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
                     c.setAllowedHeaders(List.of("*"));
                     c.setAllowCredentials(true);
                     return c;
                 }))
-                .authorizeHttpRequests(auth -> {
-                    auth.requestMatchers("/api/users/start-auth/**").permitAll();
-                    auth.requestMatchers("/api/users/complete-auth/**").permitAll();
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/", "/index.html",
+                                "/app/**",
+                                "/camunda/**",
+                                "/plugin/**",
+                                "/rest/**",
+                                "/engine-rest/**").permitAll()
 
-                    auth.requestMatchers("/api/tariffs/**").permitAll();
-                    auth.requestMatchers("/api/tariffs/{tariffId}/**").permitAll();
-                    auth.requestMatchers("/api/users/complete-auth").permitAll();
-                    auth.anyRequest().authenticated();
-                })
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                        .requestMatchers("/api/users/start-auth/**",
+                                "/api/users/complete-auth/**",
+                                "/api/tariffs/**").permitAll()
+
+                        .requestMatchers(HttpMethod.OPTIONS).permitAll()
+
+                        .anyRequest().authenticated()
+                )
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+        ;
 
         return http.build();
     }
+
 
     @Bean
     public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService) {

@@ -10,9 +10,6 @@
     <messageFlow id="Flow_1cum0e0" name="call_auth" sourceRef="Activity_1vjmsf4" targetRef="Event_11vbhjy" />
     <messageFlow id="Flow_1incpza" name="call_auth" sourceRef="Activity_0jwwwem" targetRef="Event_11vbhjy" />
     <messageFlow id="Flow_1dkbjhu" name="call_auth" sourceRef="Activity_0z28arz" targetRef="Event_11vbhjy" />
-    <textAnnotation id="TextAnnotation_1ilj1qj">
-      <text>Контроль расходов</text>
-    </textAnnotation>
     <textAnnotation id="TextAnnotation_1ce6d68">
       <text>Если пользователь уже является админом, то сервер вернет ошибку со статусом 409</text>
     </textAnnotation>
@@ -47,10 +44,10 @@
     <association id="Association_0mpvym6" associationDirection="None" sourceRef="Activity_0koy9e8" targetRef="TextAnnotation_0n0amha" />
     <association id="Association_0dzwxq4" associationDirection="None" sourceRef="TextAnnotation_1xu3d42" targetRef="Activity_1ot0ilo" />
     <association id="Association_14vkg4a" associationDirection="None" sourceRef="TextAnnotation_03sdkpu" targetRef="Activity_1ot0ilo" />
-    <association id="Association_04wke5o" associationDirection="None" sourceRef="Activity_1ofdteh" targetRef="TextAnnotation_1841duq" />
     <association id="Association_1no01rb" associationDirection="None" sourceRef="Activity_0lgkklw" targetRef="TextAnnotation_01ghcci" />
+    <association id="Association_04wke5o" associationDirection="None" sourceRef="Activity_1ofdteh" targetRef="TextAnnotation_1841duq" />
   </collaboration>
-  <process id="Process_0htt1dq" isExecutable="true" camunda:historyTimeToLive="30">
+  <process id="Process_0htt1dq" isExecutable="false" camunda:historyTimeToLive="30">
     <laneSet id="LaneSet_0ugu4gh">
       <lane id="Lane_1jh2kh2" name="Админ">
         <flowNodeRef>Activity_05jeq8r</flowNodeRef>
@@ -105,7 +102,7 @@
       <incoming>Flow_07hzned</incoming>
       <outgoing>Flow_1lzes86</outgoing>
     </callActivity>
-    <exclusiveGateway id="Gateway_1dmnxrj" name="Является ли пользоватлеь администратором?">
+    <exclusiveGateway id="Gateway_1dmnxrj" name="Является ли пользоватлеь администратором?" default="Flow_0yc1a82">
       <incoming>Flow_1f99qif</incoming>
       <outgoing>Flow_055pu0n</outgoing>
       <outgoing>Flow_0yc1a82</outgoing>
@@ -170,7 +167,7 @@
       <incoming>Flow_02u7lms</incoming>
       <outgoing>Flow_15zrtjh</outgoing>
     </task>
-    <exclusiveGateway id="Gateway_0rbwth9" name="Нужно ли принять/отклонить заявку от какого-то пользователя?">
+    <exclusiveGateway id="Gateway_0rbwth9" name="Нужно ли принять/отклонить заявку от какого-то пользователя?" default="Flow_0k631j3">
       <incoming>Flow_0dhlsdq</incoming>
       <outgoing>Flow_02u7lms</outgoing>
       <outgoing>Flow_0k631j3</outgoing>
@@ -199,7 +196,7 @@
         <targetRef>Property_186qzvb</targetRef>
       </dataInputAssociation>
     </task>
-    <exclusiveGateway id="Gateway_0d83i8o" name="Есть ли в системе уже администратор?">
+    <exclusiveGateway id="Gateway_0d83i8o" name="Есть ли в системе уже администратор?" default="Flow_0djxudu">
       <incoming>Flow_07bdk7m</incoming>
       <outgoing>Flow_0djxudu</outgoing>
       <outgoing>Flow_0cp8ri5</outgoing>
@@ -270,19 +267,17 @@
     </boundaryEvent>
     <sequenceFlow id="Flow_00epe1a" sourceRef="Event_0lwz9h5" targetRef="Gateway_1kb9qrr" />
     <sequenceFlow id="Flow_07hzned" name="Нет" sourceRef="Gateway_1kb9qrr" targetRef="Activity_0habmig">
-      <conditionExpression xsi:type="tFormalExpression">${someVar == "No"}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression">${userAuthenticated == "No"}</conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="Flow_1aujddw" name="Да" sourceRef="Gateway_1kb9qrr" targetRef="Gateway_0wt0nn6">
-      <conditionExpression xsi:type="tFormalExpression">${someVar == "Yes"}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression">${userAuthenticated == "Yes"}</conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="Flow_1lzes86" sourceRef="Activity_0habmig" targetRef="Gateway_0wt0nn6" />
     <sequenceFlow id="Flow_1f99qif" sourceRef="Gateway_0wt0nn6" targetRef="Gateway_1dmnxrj" />
     <sequenceFlow id="Flow_055pu0n" name="Да" sourceRef="Gateway_1dmnxrj" targetRef="Activity_05jeq8r">
-      <conditionExpression xsi:type="tFormalExpression">${someVar == "Yes"}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression">${userIsAdmin == "Yes"}</conditionExpression>
     </sequenceFlow>
-    <sequenceFlow id="Flow_0yc1a82" name="Нет" sourceRef="Gateway_1dmnxrj" targetRef="Gateway_0x3ow58">
-      <conditionExpression xsi:type="tFormalExpression">${someVar == "No"}</conditionExpression>
-    </sequenceFlow>
+    <sequenceFlow id="Flow_0yc1a82" name="Нет" sourceRef="Gateway_1dmnxrj" targetRef="Gateway_0x3ow58" />
     <sequenceFlow id="Flow_11om0id" sourceRef="Activity_05jeq8r" targetRef="Activity_10a3xf4" />
     <sequenceFlow id="Flow_0fgogu7" sourceRef="Activity_10a3xf4" targetRef="Activity_1esvha5" />
     <sequenceFlow id="Flow_0dhlsdq" sourceRef="Activity_1esvha5" targetRef="Gateway_0rbwth9" />
@@ -292,16 +287,14 @@
     <sequenceFlow id="Flow_1qi3le3" sourceRef="Activity_17pgkcx" targetRef="Activity_0a6dmck" />
     <sequenceFlow id="Flow_1gjuce5" sourceRef="Activity_0a6dmck" targetRef="Gateway_0x3ow58" />
     <sequenceFlow id="Flow_02u7lms" name="Да" sourceRef="Gateway_0rbwth9" targetRef="Activity_12o9p9o">
-      <conditionExpression xsi:type="tFormalExpression">${someVar == "Yes"}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression">${needToProcessApplication == "Yes"}</conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="Flow_0ckj6vt" sourceRef="Gateway_0x3ow58" targetRef="Activity_0p00l9q" />
     <sequenceFlow id="Flow_1qjlfcv" sourceRef="Activity_0p00l9q" targetRef="Activity_0gyl66v" />
     <sequenceFlow id="Flow_07bdk7m" sourceRef="Activity_0gyl66v" targetRef="Gateway_0d83i8o" />
-    <sequenceFlow id="Flow_0djxudu" name="Нет" sourceRef="Gateway_0d83i8o" targetRef="Activity_0dyufyx">
-      <conditionExpression xsi:type="tFormalExpression">${someVar == "No"}</conditionExpression>
-    </sequenceFlow>
+    <sequenceFlow id="Flow_0djxudu" name="Нет" sourceRef="Gateway_0d83i8o" targetRef="Activity_0dyufyx" />
     <sequenceFlow id="Flow_0cp8ri5" name="Да" sourceRef="Gateway_0d83i8o" targetRef="Activity_0c613bo">
-      <conditionExpression xsi:type="tFormalExpression">${someVar == "Yes"}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression">${isThereAnAdmin == "Yes"}</conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="Flow_0rkx077" sourceRef="Activity_0dyufyx" targetRef="Gateway_0ouwibe" />
     <sequenceFlow id="Flow_0gx1hj5" sourceRef="Activity_0c613bo" targetRef="Gateway_0ouwibe" />
@@ -310,9 +303,7 @@
     <sequenceFlow id="Flow_1by0sfr" sourceRef="Activity_1v1kdcb" targetRef="Activity_1r4sjl6" />
     <sequenceFlow id="Flow_07wpxtz" sourceRef="Activity_1r4sjl6" targetRef="Activity_18f9fjn" />
     <sequenceFlow id="Flow_1bn1ki2" sourceRef="Activity_18f9fjn" targetRef="Event_109ylyr" />
-    <sequenceFlow id="Flow_0k631j3" name="Нет" sourceRef="Gateway_0rbwth9" targetRef="Gateway_0x3ow58">
-      <conditionExpression xsi:type="tFormalExpression">${someVar == "No"}</conditionExpression>
-    </sequenceFlow>
+    <sequenceFlow id="Flow_0k631j3" name="Нет" sourceRef="Gateway_0rbwth9" targetRef="Gateway_0x3ow58" />
   </process>
   <process id="Process_1ou8740" isExecutable="false" camunda:historyTimeToLive="30">
     <laneSet id="LaneSet_1hkpn4x">
@@ -370,7 +361,7 @@
       <incoming>Flow_18mii0i</incoming>
       <outgoing>Flow_1liduwu</outgoing>
     </task>
-    <exclusiveGateway id="Gateway_1tgzq25" name="Пользователь уже аунтефицирован?">
+    <exclusiveGateway id="Gateway_1tgzq25" name="Пользователь уже аунтефицирован?" default="Flow_0x1bcbv">
       <incoming>Flow_1liduwu</incoming>
       <outgoing>Flow_0x1bcbv</outgoing>
       <outgoing>Flow_0rd6vhx</outgoing>
@@ -402,7 +393,7 @@
         <targetRef>Property_075qvwg</targetRef>
       </dataInputAssociation>
     </task>
-    <exclusiveGateway id="Gateway_032it7x" name="Достаточно ли денег?">
+    <exclusiveGateway id="Gateway_032it7x" name="Достаточно ли денег?" default="Flow_17l09y5">
       <incoming>Flow_08lzttg</incoming>
       <outgoing>Flow_17l09y5</outgoing>
       <outgoing>Flow_1sv0m6f</outgoing>
@@ -458,21 +449,17 @@
     <sequenceFlow id="Flow_1w9vew9" sourceRef="Activity_17vu90p" targetRef="Activity_0b1nkgw" />
     <sequenceFlow id="Flow_18mii0i" sourceRef="Activity_0b1nkgw" targetRef="Activity_1cjc64j" />
     <sequenceFlow id="Flow_1liduwu" sourceRef="Activity_1cjc64j" targetRef="Gateway_1tgzq25" />
-    <sequenceFlow id="Flow_0x1bcbv" name="Нет" sourceRef="Gateway_1tgzq25" targetRef="Activity_0z28arz">
-      <conditionExpression xsi:type="tFormalExpression">${someVar == "No"}</conditionExpression>
-    </sequenceFlow>
+    <sequenceFlow id="Flow_0x1bcbv" name="Нет" sourceRef="Gateway_1tgzq25" targetRef="Activity_0z28arz" />
     <sequenceFlow id="Flow_0rd6vhx" name="Да" sourceRef="Gateway_1tgzq25" targetRef="Gateway_1vu04r2">
-      <conditionExpression xsi:type="tFormalExpression">${someVar == "Yes"}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression">${userAuthenticated == "Yes"}</conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="Flow_15f61fn" sourceRef="Activity_0z28arz" targetRef="Gateway_1vu04r2" />
     <sequenceFlow id="Flow_1wdpb11" sourceRef="Gateway_1vu04r2" targetRef="Activity_1rfu8ie" />
     <sequenceFlow id="Flow_1mei7l6" sourceRef="Activity_1rfu8ie" targetRef="Activity_0x9px6r" />
     <sequenceFlow id="Flow_08lzttg" sourceRef="Activity_0x9px6r" targetRef="Gateway_032it7x" />
-    <sequenceFlow id="Flow_17l09y5" name="Да" sourceRef="Gateway_032it7x" targetRef="Activity_1y51umj">
-      <conditionExpression xsi:type="tFormalExpression">${someVar == "Yes"}</conditionExpression>
-    </sequenceFlow>
+    <sequenceFlow id="Flow_17l09y5" name="Да" sourceRef="Gateway_032it7x" targetRef="Activity_1y51umj" />
     <sequenceFlow id="Flow_1sv0m6f" name="Нет" sourceRef="Gateway_032it7x" targetRef="Activity_0x8zmix">
-      <conditionExpression xsi:type="tFormalExpression">${someVar == "No"}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression">${enoughMoney == "No"}</conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="Flow_1mfoe06" sourceRef="Activity_1y51umj" targetRef="Gateway_04yhkou" />
     <sequenceFlow id="Flow_1g3ylnh" sourceRef="Event_1lavw4c" targetRef="Activity_09mj7v0" />
@@ -623,7 +610,7 @@
       <incoming>Flow_1lc43i9</incoming>
       <outgoing>Flow_1n7d2im</outgoing>
     </task>
-    <exclusiveGateway id="Gateway_00g3ld2" name="Нужно добавить способ оплаты?">
+    <exclusiveGateway id="Gateway_00g3ld2" name="Нужно добавить способ оплаты?" default="Flow_0n1lxek">
       <incoming>Flow_0zamiyl</incoming>
       <outgoing>Flow_0n1lxek</outgoing>
       <outgoing>Flow_1lc43i9</outgoing>
@@ -693,19 +680,19 @@
     </boundaryEvent>
     <sequenceFlow id="Flow_0r37iix" sourceRef="Event_1e6s20a" targetRef="Gateway_1iz7yxw" />
     <sequenceFlow id="Flow_078ja5j" name="Нет" sourceRef="Gateway_1iz7yxw" targetRef="Activity_1vjmsf4">
-      <conditionExpression xsi:type="tFormalExpression">${someVar == "No"}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression">${userAuthenticated == "No"}</conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="Flow_1cqz0k8" sourceRef="Activity_1vjmsf4" targetRef="Gateway_13q4zem" />
     <sequenceFlow id="Flow_0v46pnl" name="Да" sourceRef="Gateway_1iz7yxw" targetRef="Gateway_13q4zem">
-      <conditionExpression xsi:type="tFormalExpression">${someVar == "Yes"}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression">${userAuthenticated == "Yes"}</conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="Flow_1f61x5c" name="Да" sourceRef="Gateway_1jg50i9" targetRef="Activity_0zc1f2m">
-      <conditionExpression xsi:type="tFormalExpression">${someVar == "Yes"}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression">${needToChangeInfo == "Yes"}</conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="Flow_12be2p8" sourceRef="Activity_0zc1f2m" targetRef="Activity_06r2kik" />
     <sequenceFlow id="Flow_1p0hmav" sourceRef="Gateway_13q4zem" targetRef="Gateway_1jg50i9" />
     <sequenceFlow id="Flow_159r996" name="Нет" sourceRef="Gateway_1jg50i9" targetRef="Gateway_1gtmib3">
-      <conditionExpression xsi:type="tFormalExpression">${someVar == "No"}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression">${needToChangeInfo == "No"}</conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="Flow_1fcjopy" sourceRef="Activity_0hvkauo" targetRef="Gateway_1gtmib3" />
     <sequenceFlow id="Flow_0zamiyl" sourceRef="Gateway_1gtmib3" targetRef="Gateway_00g3ld2" />
@@ -715,39 +702,37 @@
     <sequenceFlow id="Flow_1plj48w" sourceRef="Activity_0koy9e8" targetRef="Activity_0ta9deq" />
     <sequenceFlow id="Flow_0ys2f7k" sourceRef="Activity_0ta9deq" targetRef="Gateway_1lhoapq" />
     <sequenceFlow id="Flow_05fg1fl" name="Да" sourceRef="Gateway_15pnk8h" targetRef="Activity_0r2bzkc">
-      <conditionExpression xsi:type="tFormalExpression">${someVar == "Yes"}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression">${needToAddRecoveryInfo == "Yes"}</conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="Flow_1irszsx" sourceRef="Activity_1q4zvda" targetRef="Activity_0hhyobg" />
     <sequenceFlow id="Flow_1j4dt2e" sourceRef="Activity_0hhyobg" targetRef="Gateway_0kzcazl" />
     <sequenceFlow id="Flow_00z3bmk" name="Да" sourceRef="Gateway_16uyoju" targetRef="Activity_0x31u41">
-      <conditionExpression xsi:type="tFormalExpression">${someVar == "Yes"}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression">${needToChangeAuthMethod == "Yes"}</conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="Flow_1xv3jqy" sourceRef="Activity_0x31u41" targetRef="Activity_1q4zvda" />
     <sequenceFlow id="Flow_1qzsmch" name="Да" sourceRef="Gateway_0fhaooc" targetRef="Activity_00o7m1q">
-      <conditionExpression xsi:type="tFormalExpression">${someVar == "Yes"}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression">${needToCutomizeSecurity == "Yes"}</conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="Flow_0u6oii9" sourceRef="Activity_00o7m1q" targetRef="Gateway_16uyoju" />
     <sequenceFlow id="Flow_152g8tl" sourceRef="Gateway_0pdqhs4" targetRef="Gateway_0fhaooc" />
     <sequenceFlow id="Flow_0kouq5i" name="Нет" sourceRef="Gateway_0fhaooc" targetRef="Event_1s8lm3u">
-      <conditionExpression xsi:type="tFormalExpression">${someVar == "No"}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression">${needToCutomizeSecurity == "Yes"}</conditionExpression>
     </sequenceFlow>
-    <sequenceFlow id="Flow_0n1lxek" name="Нет" sourceRef="Gateway_00g3ld2" targetRef="Gateway_0pdqhs4">
-      <conditionExpression xsi:type="tFormalExpression">${someVar == "No"}</conditionExpression>
-    </sequenceFlow>
+    <sequenceFlow id="Flow_0n1lxek" name="Нет" sourceRef="Gateway_00g3ld2" targetRef="Gateway_0pdqhs4" />
     <sequenceFlow id="Flow_1j0iap1" sourceRef="Activity_02kidb8" targetRef="Gateway_0pdqhs4" />
     <sequenceFlow id="Flow_03cwkq6" sourceRef="Activity_0ltrfxj" targetRef="Activity_02kidb8" />
     <sequenceFlow id="Flow_1n7d2im" sourceRef="Activity_1r1gi9q" targetRef="Activity_1os10jg" />
     <sequenceFlow id="Flow_10k6uvn" sourceRef="Activity_1os10jg" targetRef="Activity_0ltrfxj" />
     <sequenceFlow id="Flow_1lc43i9" name="Да" sourceRef="Gateway_00g3ld2" targetRef="Activity_1r1gi9q">
-      <conditionExpression xsi:type="tFormalExpression">${someVar == "Yes"}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression">${needToAddPayMethod == "Yes"}</conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="Flow_1ud5m0s" sourceRef="Gateway_1lhoapq" targetRef="Event_1s8lm3u" />
     <sequenceFlow id="Flow_17waxhg" name="Нет" sourceRef="Gateway_15pnk8h" targetRef="Gateway_1lhoapq">
-      <conditionExpression xsi:type="tFormalExpression">${someVar == "No"}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression">${needToAddRecoveryInfo == "No"}</conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="Flow_1nwi1oz" sourceRef="Gateway_0kzcazl" targetRef="Gateway_15pnk8h" />
     <sequenceFlow id="Flow_0wfxiv8" name="Нет" sourceRef="Gateway_16uyoju" targetRef="Gateway_0kzcazl">
-      <conditionExpression xsi:type="tFormalExpression">${someVar == "No"}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression">${needToChangeAuthMethod == "No"}</conditionExpression>
     </sequenceFlow>
   </process>
   <process id="Process_1p3xjsf" isExecutable="false" camunda:historyTimeToLive="30">
@@ -779,7 +764,7 @@
     <startEvent id="Event_0gb9t7l" name="Нажатие кнопки&#10;&#34;Контроль расходов&#34;">
       <outgoing>Flow_0rf88es</outgoing>
     </startEvent>
-    <exclusiveGateway id="Gateway_1yg3e4e" name="Пользователь уже аунтефицирован?">
+    <exclusiveGateway id="Gateway_1yg3e4e" name="Пользователь уже аунтефицирован?" default="Flow_0in6s4b">
       <incoming>Flow_0rf88es</incoming>
       <outgoing>Flow_0in6s4b</outgoing>
       <outgoing>Flow_1s17r1k</outgoing>
@@ -788,22 +773,21 @@
       <incoming>Flow_0in6s4b</incoming>
       <outgoing>Flow_18ywtqs</outgoing>
     </callActivity>
-    <exclusiveGateway id="Gateway_0g9n8eg" name="Нужна смена категории?">
+    <exclusiveGateway id="Gateway_0g9n8eg" name="Нужна смена категории?" default="Flow_0j583tl">
       <incoming>Flow_1s17r1k</incoming>
       <incoming>Flow_18ywtqs</incoming>
       <outgoing>Flow_1su2l2r</outgoing>
-      <outgoing>Flow_1heuvli</outgoing>
+      <outgoing>Flow_0j583tl</outgoing>
     </exclusiveGateway>
     <task id="Activity_0g3x26j" name="Сменить категорию">
       <incoming>Flow_1su2l2r</incoming>
       <outgoing>Flow_1mo06jh</outgoing>
     </task>
     <parallelGateway id="Gateway_0f09ek1">
-      <incoming>Flow_1heuvli</incoming>
       <incoming>Flow_1mo06jh</incoming>
       <outgoing>Flow_0yxwjvv</outgoing>
     </parallelGateway>
-    <exclusiveGateway id="Gateway_1wc2bt9" name="Нужна смена периода?">
+    <exclusiveGateway id="Gateway_1wc2bt9" name="Нужна смена периода?" default="Flow_05pe3hn">
       <incoming>Flow_0yxwjvv</incoming>
       <outgoing>Flow_0mxpbmu</outgoing>
       <outgoing>Flow_05pe3hn</outgoing>
@@ -865,6 +849,7 @@
       <incoming>Flow_0qbzq5p</incoming>
       <incoming>Flow_0buevua</incoming>
       <incoming>Flow_05pe3hn</incoming>
+      <incoming>Flow_0j583tl</incoming>
       <outgoing>Flow_0l3tldl</outgoing>
     </parallelGateway>
     <boundaryEvent id="Event_0kf5c2c" attachedToRef="Activity_1ot0ilo">
@@ -872,27 +857,28 @@
     </boundaryEvent>
     <sequenceFlow id="Flow_0rf88es" sourceRef="Event_0gb9t7l" targetRef="Gateway_1yg3e4e" />
     <sequenceFlow id="Flow_0in6s4b" name="Нет" sourceRef="Gateway_1yg3e4e" targetRef="Activity_0jwwwem" />
-    <sequenceFlow id="Flow_1s17r1k" name="Да" sourceRef="Gateway_1yg3e4e" targetRef="Gateway_0g9n8eg" />
+    <sequenceFlow id="Flow_1s17r1k" name="Да" sourceRef="Gateway_1yg3e4e" targetRef="Gateway_0g9n8eg">
+      <conditionExpression xsi:type="tFormalExpression">${userAuthenticated == "Yes"}</conditionExpression>
+    </sequenceFlow>
     <sequenceFlow id="Flow_18ywtqs" sourceRef="Activity_0jwwwem" targetRef="Gateway_0g9n8eg" />
-    <sequenceFlow id="Flow_1su2l2r" name="Да" sourceRef="Gateway_0g9n8eg" targetRef="Activity_0g3x26j" />
-    <sequenceFlow id="Flow_1heuvli" name="Нет" sourceRef="Gateway_0g9n8eg" targetRef="Gateway_0f09ek1" />
+    <sequenceFlow id="Flow_1su2l2r" name="Да" sourceRef="Gateway_0g9n8eg" targetRef="Activity_0g3x26j">
+      <conditionExpression xsi:type="tFormalExpression">${needToChangeCategory == "Yes"}</conditionExpression>
+    </sequenceFlow>
     <sequenceFlow id="Flow_1mo06jh" sourceRef="Activity_0g3x26j" targetRef="Gateway_0f09ek1" />
     <sequenceFlow id="Flow_0yxwjvv" sourceRef="Gateway_0f09ek1" targetRef="Gateway_1wc2bt9" />
     <sequenceFlow id="Flow_0mxpbmu" name="Да" sourceRef="Gateway_1wc2bt9" targetRef="Activity_045edl2">
-      <conditionExpression xsi:type="tFormalExpression">${someVar == "Yes"}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression">${needToChangePeriod == "Yes"}</conditionExpression>
     </sequenceFlow>
-    <sequenceFlow id="Flow_05pe3hn" name="Нет" sourceRef="Gateway_1wc2bt9" targetRef="Gateway_0b60bj5">
-      <conditionExpression xsi:type="tFormalExpression">${someVar == "No"}</conditionExpression>
-    </sequenceFlow>
+    <sequenceFlow id="Flow_05pe3hn" name="Нет" sourceRef="Gateway_1wc2bt9" targetRef="Gateway_0b60bj5" />
     <sequenceFlow id="Flow_150n98t" sourceRef="Activity_045edl2" targetRef="Gateway_0azkq91" />
     <sequenceFlow id="Flow_18rpenr" name="За последний месяц" sourceRef="Gateway_0azkq91" targetRef="Activity_0ee2q0a">
-      <conditionExpression xsi:type="tFormalExpression">${someVar == "In the last month"}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression">${thePeriod == "In the last month"}</conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="Flow_05dgzr6" name="Гибкий период" sourceRef="Gateway_0azkq91" targetRef="Activity_0opw2a1">
-      <conditionExpression xsi:type="tFormalExpression">${someVar == "Flexible period"}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression">${thePeriod == "Flexible period"}</conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="Flow_1r7tddf" name="За последнюю неделю" sourceRef="Gateway_0azkq91" targetRef="Activity_1cwocex">
-      <conditionExpression xsi:type="tFormalExpression">${someVar == "In the last week"}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression">${thePeriod == "In the last week"}</conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="Flow_0qbzq5p" sourceRef="Activity_0ee2q0a" targetRef="Gateway_0b60bj5" />
     <sequenceFlow id="Flow_08ebrzo" sourceRef="Activity_0opw2a1" targetRef="Activity_0wu9y5k" />
@@ -902,188 +888,60 @@
     <sequenceFlow id="Flow_0n3lnuj" sourceRef="Activity_1ot0ilo" targetRef="Activity_06l0j2g" />
     <sequenceFlow id="Flow_0l3tldl" sourceRef="Gateway_0b60bj5" targetRef="Activity_1njkzkv" />
     <sequenceFlow id="Flow_0udiwid" sourceRef="Activity_06l0j2g" targetRef="Event_18u00j1" />
+    <sequenceFlow id="Flow_0j583tl" name="Нет" sourceRef="Gateway_0g9n8eg" targetRef="Gateway_0b60bj5" />
   </process>
-  <process id="Process_11znbub" isExecutable="false" camunda:historyTimeToLive="30">
+  <process id="Process_11znbub" isExecutable="true" camunda:historyTimeToLive="30">
     <laneSet id="LaneSet_1ttpxmd">
       <lane id="Lane_1bul24k" name="Сервер">
         <flowNodeRef>Event_11vbhjy</flowNodeRef>
-        <flowNodeRef>Activity_00c6ypj</flowNodeRef>
         <flowNodeRef>Activity_1s4ukah</flowNodeRef>
+        <flowNodeRef>Activity_00c6ypj</flowNodeRef>
         <flowNodeRef>Activity_0qfn8or</flowNodeRef>
         <flowNodeRef>Activity_0od0iqt</flowNodeRef>
         <flowNodeRef>Activity_18n6xyt</flowNodeRef>
-        <flowNodeRef>Event_1u6uqjb</flowNodeRef>
         <flowNodeRef>Event_0q9v5rz</flowNodeRef>
       </lane>
       <lane id="Lane_031jcpe" name="Клиент">
-        <flowNodeRef>Activity_08ryjpf</flowNodeRef>
-        <flowNodeRef>Activity_067p4zs</flowNodeRef>
-        <flowNodeRef>Activity_1r74god</flowNodeRef>
         <flowNodeRef>Gateway_10rbnxk</flowNodeRef>
-        <flowNodeRef>Activity_0s7myc2</flowNodeRef>
-        <flowNodeRef>Activity_1o1uu9a</flowNodeRef>
-        <flowNodeRef>Activity_0lgkklw</flowNodeRef>
-        <flowNodeRef>Activity_1bj80by</flowNodeRef>
-        <flowNodeRef>Activity_0n9py0v</flowNodeRef>
-        <flowNodeRef>Activity_0q4l971</flowNodeRef>
-        <flowNodeRef>Activity_1kqte2x</flowNodeRef>
-        <flowNodeRef>Activity_1ofdteh</flowNodeRef>
-        <flowNodeRef>Event_0goldzm</flowNodeRef>
-        <flowNodeRef>Activity_151zk2v</flowNodeRef>
         <flowNodeRef>Gateway_0wttwq7</flowNodeRef>
-        <flowNodeRef>Activity_1j8vims</flowNodeRef>
-        <flowNodeRef>Activity_0tkxquu</flowNodeRef>
         <flowNodeRef>Gateway_1fjxdbd</flowNodeRef>
         <flowNodeRef>Event_0ehzsfa</flowNodeRef>
+        <flowNodeRef>Activity_08ryjpf</flowNodeRef>
+        <flowNodeRef>Activity_067p4zs</flowNodeRef>
+        <flowNodeRef>Activity_1o1uu9a</flowNodeRef>
+        <flowNodeRef>Activity_0lgkklw</flowNodeRef>
+        <flowNodeRef>Activity_0n9py0v</flowNodeRef>
+        <flowNodeRef>Activity_1bj80by</flowNodeRef>
+        <flowNodeRef>Activity_0q4l971</flowNodeRef>
+        <flowNodeRef>Activity_0tkxquu</flowNodeRef>
+        <flowNodeRef>Activity_1kqte2x</flowNodeRef>
+        <flowNodeRef>Activity_1j8vims</flowNodeRef>
         <flowNodeRef>Activity_0cyohp5</flowNodeRef>
+        <flowNodeRef>Activity_1r74god</flowNodeRef>
+        <flowNodeRef>Activity_0s7myc2</flowNodeRef>
+        <flowNodeRef>Activity_1ofdteh</flowNodeRef>
+        <flowNodeRef>Gateway_0lp7u7u</flowNodeRef>
         <flowNodeRef>Event_0u458oj</flowNodeRef>
+        <flowNodeRef>Event_0c3ebdj</flowNodeRef>
+        <flowNodeRef>Event_0goldzm</flowNodeRef>
+        <flowNodeRef>Activity_151zk2v</flowNodeRef>
       </lane>
     </laneSet>
     <startEvent id="Event_11vbhjy" name="Начало Аунтефикации">
       <outgoing>Flow_0bqjkpo</outgoing>
     </startEvent>
-    <task id="Activity_00c6ypj" name="Ввести номер телефона">
-      <incoming>Flow_0bqjkpo</incoming>
-      <outgoing>Flow_0i1xloe</outgoing>
-    </task>
-    <task id="Activity_1s4ukah" name="Ввести код SMS">
-      <incoming>Flow_0mj8xjs</incoming>
-      <outgoing>Flow_0cu9afj</outgoing>
-    </task>
-    <sendTask id="Activity_08ryjpf" name="Отправить код подтверждения по SMS">
-      <incoming>Flow_0egva8h</incoming>
-      <outgoing>Flow_0mj8xjs</outgoing>
-    </sendTask>
-    <task id="Activity_067p4zs" name="Проверить код">
-      <incoming>Flow_0cu9afj</incoming>
-      <outgoing>Flow_1efusuc</outgoing>
-      <property id="Property_0e5fadw" name="__targetRef_placeholder" />
-    </task>
-    <task id="Activity_1r74god" name="Создать и сохранить код в памяти сервера">
-      <incoming>Flow_09fi6y5</incoming>
-      <outgoing>Flow_0egva8h</outgoing>
-      <outgoing>Flow_18zt34f</outgoing>
-    </task>
     <exclusiveGateway id="Gateway_10rbnxk" name="Какой способ входа установлен?">
       <incoming>Flow_1ucwrqv</incoming>
       <outgoing>Flow_09fi6y5</outgoing>
       <outgoing>Flow_1fkgfws</outgoing>
       <outgoing>Flow_00gjpjf</outgoing>
     </exclusiveGateway>
-    <task id="Activity_0s7myc2" name="Запросить пароль">
-      <incoming>Flow_00gjpjf</incoming>
-      <outgoing>Flow_13h2gx5</outgoing>
-    </task>
-    <task id="Activity_1o1uu9a" name="Обращение к БД для получения пароля">
-      <extensionElements>
-        <camunda:properties>
-          <camunda:property name="historyTimeToLive" value="3-" />
-        </camunda:properties>
-      </extensionElements>
-      <incoming>Flow_1lspyek</incoming>
-      <outgoing>Flow_141g1bz</outgoing>
-      <property id="Property_0v7f9dr" name="__targetRef_placeholder" />
-      <dataInputAssociation id="DataInputAssociation_0actdhj">
-        <sourceRef>DataStoreReference_0tk2g4i</sourceRef>
-        <targetRef>Property_0v7f9dr</targetRef>
-      </dataInputAssociation>
-    </task>
-    <task id="Activity_0qfn8or" name="Ввести пароль">
-      <incoming>Flow_13h2gx5</incoming>
-      <outgoing>Flow_1lspyek</outgoing>
-    </task>
-    <task id="Activity_0od0iqt" name="Ввести код SMS">
-      <incoming>Flow_03cgvsc</incoming>
-      <outgoing>Flow_0fydu24</outgoing>
-    </task>
-    <task id="Activity_18n6xyt" name="Ввести пароль">
-      <incoming>Flow_0b3ibv6</incoming>
-      <outgoing>Flow_1g01p1x</outgoing>
-    </task>
-    <task id="Activity_0lgkklw" name="Проверить пароль">
-      <incoming>Flow_141g1bz</incoming>
-      <outgoing>Flow_021hu0q</outgoing>
-    </task>
-    <sendTask id="Activity_1bj80by" name="Отправить код подтверждения по SMS">
-      <incoming>Flow_021hu0q</incoming>
-      <outgoing>Flow_03cgvsc</outgoing>
-    </sendTask>
-    <task id="Activity_0n9py0v" name="Обращение к БД (или не к БД) для получения ожидаемого кода">
-      <extensionElements>
-        <camunda:properties>
-          <camunda:property name="historyTimeToLive" value="30" />
-        </camunda:properties>
-      </extensionElements>
-      <incoming>Flow_0fydu24</incoming>
-      <outgoing>Flow_0htd5kl</outgoing>
-      <property id="Property_1rkfont" name="__targetRef_placeholder" />
-      <dataInputAssociation id="DataInputAssociation_1oeb1k0">
-        <sourceRef>DataStoreReference_0tk2g4i</sourceRef>
-        <targetRef>Property_1rkfont</targetRef>
-      </dataInputAssociation>
-    </task>
-    <task id="Activity_0q4l971" name="Проверить код">
-      <incoming>Flow_0htd5kl</incoming>
-      <outgoing>Flow_00tt3g5</outgoing>
-      <property id="Property_085t67f" name="__targetRef_placeholder" />
-    </task>
-    <task id="Activity_1kqte2x" name="Запросить пароль">
-      <incoming>Flow_1fkgfws</incoming>
-      <outgoing>Flow_0b3ibv6</outgoing>
-    </task>
-    <task id="Activity_1ofdteh" name="Обращение к БД для определения спосооба входа">
-      <extensionElements>
-        <camunda:properties>
-          <camunda:property name="historyTimeToLive" value="30" />
-        </camunda:properties>
-      </extensionElements>
-      <incoming>Flow_0i1xloe</incoming>
-      <outgoing>Flow_1ucwrqv</outgoing>
-      <property id="Property_1d0h9bw" name="__targetRef_placeholder" />
-      <dataInputAssociation id="DataInputAssociation_1mvq41n">
-        <sourceRef>DataStoreReference_0tk2g4i</sourceRef>
-        <targetRef>Property_1d0h9bw</targetRef>
-      </dataInputAssociation>
-    </task>
-    <intermediateCatchEvent id="Event_0goldzm" name="Прошла минута спустя создания кода">
-      <incoming>Flow_18zt34f</incoming>
-      <outgoing>Flow_0u10b43</outgoing>
-      <timerEventDefinition id="TimerEventDefinition_13rl24q">
-        <timeDuration xsi:type="tFormalExpression">PT1M</timeDuration>
-      </timerEventDefinition>
-    </intermediateCatchEvent>
-    <task id="Activity_151zk2v" name="Очистить код из оперативной памяти">
-      <extensionElements>
-        <camunda:properties>
-          <camunda:property name="camunda:delegateExpression" value="${codeDeletionDelegate}" />
-        </camunda:properties>
-      </extensionElements>
-      <incoming>Flow_0u10b43</incoming>
-    </task>
     <parallelGateway id="Gateway_0wttwq7">
       <incoming>Flow_1efusuc</incoming>
       <incoming>Flow_00tt3g5</incoming>
       <incoming>Flow_12nr83j</incoming>
       <outgoing>Flow_10agbno</outgoing>
     </parallelGateway>
-    <task id="Activity_1j8vims" name="Проверить пароль">
-      <incoming>Flow_1odqrzd</incoming>
-      <outgoing>Flow_12nr83j</outgoing>
-    </task>
-    <task id="Activity_0tkxquu" name="Обращение к БД для получения пароля">
-      <extensionElements>
-        <camunda:properties>
-          <camunda:property name="historyTimeToLive" value="30" />
-        </camunda:properties>
-      </extensionElements>
-      <incoming>Flow_1g01p1x</incoming>
-      <outgoing>Flow_1odqrzd</outgoing>
-      <property id="Property_07db3oc" name="__targetRef_placeholder" />
-      <dataInputAssociation id="DataInputAssociation_1536w9t">
-        <sourceRef>DataStoreReference_0tk2g4i</sourceRef>
-        <targetRef>Property_07db3oc</targetRef>
-      </dataInputAssociation>
-    </task>
     <exclusiveGateway id="Gateway_1fjxdbd" name="Код/пароль правильный?">
       <incoming>Flow_10agbno</incoming>
       <outgoing>Flow_022ke70</outgoing>
@@ -1093,38 +951,24 @@
       <incoming>Flow_1w9yzte</incoming>
       <errorEventDefinition id="ErrorEventDefinition_1s7wl8y" />
     </endEvent>
-    <intermediateCatchEvent id="Event_1u6uqjb" name="Отправить сообщение по номеру телефона, что был выполнен вход в аккаунт.">
+    <endEvent id="Event_0q9v5rz" name="Конец">
       <incoming>Flow_1birxb2</incoming>
-      <outgoing>Flow_0koum0y</outgoing>
-      <messageEventDefinition id="MessageEventDefinition_02unuwg" />
-    </intermediateCatchEvent>
-    <task id="Activity_0cyohp5" name="Отправить JWT-токен на клиент">
-      <incoming>Flow_022ke70</incoming>
-      <outgoing>Flow_1birxb2</outgoing>
-    </task>
-    <endEvent id="Event_0q9v5rz">
-      <incoming>Flow_0koum0y</incoming>
     </endEvent>
     <dataStoreReference id="DataStoreReference_0tk2g4i" name="Пользователи" />
-    <boundaryEvent id="Event_0u458oj" attachedToRef="Activity_1ofdteh">
-      <errorEventDefinition id="ErrorEventDefinition_04z0m74" />
-    </boundaryEvent>
     <sequenceFlow id="Flow_0bqjkpo" sourceRef="Event_11vbhjy" targetRef="Activity_00c6ypj" />
     <sequenceFlow id="Flow_0i1xloe" sourceRef="Activity_00c6ypj" targetRef="Activity_1ofdteh" />
     <sequenceFlow id="Flow_0mj8xjs" sourceRef="Activity_08ryjpf" targetRef="Activity_1s4ukah" />
     <sequenceFlow id="Flow_0cu9afj" sourceRef="Activity_1s4ukah" targetRef="Activity_067p4zs" />
-    <sequenceFlow id="Flow_0egva8h" sourceRef="Activity_1r74god" targetRef="Activity_08ryjpf" />
     <sequenceFlow id="Flow_1efusuc" sourceRef="Activity_067p4zs" targetRef="Gateway_0wttwq7" />
     <sequenceFlow id="Flow_09fi6y5" name="SMS_ONLY" sourceRef="Gateway_10rbnxk" targetRef="Activity_1r74god">
-      <conditionExpression xsi:type="tFormalExpression">${someVar == "SMS_ONLY"}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression">${type_auth == "SMS_ONLY"}</conditionExpression>
     </sequenceFlow>
-    <sequenceFlow id="Flow_18zt34f" sourceRef="Activity_1r74god" targetRef="Event_0goldzm" />
     <sequenceFlow id="Flow_1ucwrqv" sourceRef="Activity_1ofdteh" targetRef="Gateway_10rbnxk" />
     <sequenceFlow id="Flow_1fkgfws" name="PASSWORD_ONLY" sourceRef="Gateway_10rbnxk" targetRef="Activity_1kqte2x">
-      <conditionExpression xsi:type="tFormalExpression">${someVar == "PASSWORD_ONLY"}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression">${type_auth == "PASSWORD_ONLY"}</conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="Flow_00gjpjf" name="PASSWORD_SMS" sourceRef="Gateway_10rbnxk" targetRef="Activity_0s7myc2">
-      <conditionExpression xsi:type="tFormalExpression">${someVar == "PASSWORD_SMS"}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression">${type_auth == "PASSWORD_SMS"}</conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="Flow_13h2gx5" sourceRef="Activity_0s7myc2" targetRef="Activity_0qfn8or" />
     <sequenceFlow id="Flow_1lspyek" sourceRef="Activity_0qfn8or" targetRef="Activity_1o1uu9a" />
@@ -1136,18 +980,174 @@
     <sequenceFlow id="Flow_021hu0q" sourceRef="Activity_0lgkklw" targetRef="Activity_1bj80by" />
     <sequenceFlow id="Flow_0htd5kl" sourceRef="Activity_0n9py0v" targetRef="Activity_0q4l971" />
     <sequenceFlow id="Flow_00tt3g5" sourceRef="Activity_0q4l971" targetRef="Gateway_0wttwq7" />
-    <sequenceFlow id="Flow_0u10b43" sourceRef="Event_0goldzm" targetRef="Activity_151zk2v" />
     <sequenceFlow id="Flow_12nr83j" sourceRef="Activity_1j8vims" targetRef="Gateway_0wttwq7" />
     <sequenceFlow id="Flow_10agbno" sourceRef="Gateway_0wttwq7" targetRef="Gateway_1fjxdbd" />
     <sequenceFlow id="Flow_1odqrzd" sourceRef="Activity_0tkxquu" targetRef="Activity_1j8vims" />
     <sequenceFlow id="Flow_022ke70" name="Да" sourceRef="Gateway_1fjxdbd" targetRef="Activity_0cyohp5">
-      <conditionExpression xsi:type="tFormalExpression">${someVar == "Yes"}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression">${validationSuccessful == "Yes"}</conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="Flow_1w9yzte" name="Нет" sourceRef="Gateway_1fjxdbd" targetRef="Event_0ehzsfa">
-      <conditionExpression xsi:type="tFormalExpression">${someVar == "No"}</conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression">${validationSuccessful == "No"}</conditionExpression>
     </sequenceFlow>
-    <sequenceFlow id="Flow_1birxb2" sourceRef="Activity_0cyohp5" targetRef="Event_1u6uqjb" />
-    <sequenceFlow id="Flow_0koum0y" sourceRef="Event_1u6uqjb" targetRef="Event_0q9v5rz" />
+    <sequenceFlow id="Flow_1birxb2" sourceRef="Activity_0cyohp5" targetRef="Event_0q9v5rz" />
+    <userTask id="Activity_1s4ukah" name="Ввести код SMS">
+      <incoming>Flow_0mj8xjs</incoming>
+      <outgoing>Flow_0cu9afj</outgoing>
+    </userTask>
+    <userTask id="Activity_00c6ypj" name="Ввести номер телефона">
+      <extensionElements>
+        <camunda:formData>
+          <camunda:formField id="phoneNumber" label="Номер телефона" type="string" defaultValue="+70000000000" />
+        </camunda:formData>
+      </extensionElements>
+      <incoming>Flow_0bqjkpo</incoming>
+      <outgoing>Flow_0i1xloe</outgoing>
+    </userTask>
+    <userTask id="Activity_0qfn8or" name="Ввести пароль">
+      <incoming>Flow_13h2gx5</incoming>
+      <outgoing>Flow_1lspyek</outgoing>
+    </userTask>
+    <userTask id="Activity_0od0iqt" name="Ввести код SMS">
+      <incoming>Flow_03cgvsc</incoming>
+      <outgoing>Flow_0fydu24</outgoing>
+    </userTask>
+    <userTask id="Activity_18n6xyt" name="Ввести пароль">
+      <incoming>Flow_0b3ibv6</incoming>
+      <outgoing>Flow_1g01p1x</outgoing>
+    </userTask>
+    <serviceTask id="Activity_08ryjpf" name="Отправить код подтверждения по SMS" camunda:asyncBefore="true" camunda:jobPriority="1" camunda:class="ru.itmo.node_a_core.delegate.SendSmsDelegate">
+      <extensionElements>
+        <camunda:failedJobRetryTimeCycle>30</camunda:failedJobRetryTimeCycle>
+      </extensionElements>
+      <incoming>Flow_13jcteh</incoming>
+      <outgoing>Flow_0mj8xjs</outgoing>
+    </serviceTask>
+    <serviceTask id="Activity_067p4zs" name="Проверить код">
+      <incoming>Flow_0cu9afj</incoming>
+      <outgoing>Flow_1efusuc</outgoing>
+      <property id="Property_0y16h41" name="__targetRef_placeholder" />
+    </serviceTask>
+    <serviceTask id="Activity_1o1uu9a" name="Обращение к БД для получения пароля">
+      <extensionElements>
+        <camunda:properties>
+          <camunda:property name="historyTimeToLive" value="3-" />
+        </camunda:properties>
+      </extensionElements>
+      <incoming>Flow_1lspyek</incoming>
+      <outgoing>Flow_141g1bz</outgoing>
+      <property id="Property_1y1b3b2" name="__targetRef_placeholder" />
+      <dataInputAssociation id="DataInputAssociation_0actdhj">
+        <sourceRef>DataStoreReference_0tk2g4i</sourceRef>
+        <targetRef>Property_1y1b3b2</targetRef>
+      </dataInputAssociation>
+    </serviceTask>
+    <serviceTask id="Activity_0lgkklw" name="Проверить пароль">
+      <incoming>Flow_141g1bz</incoming>
+      <outgoing>Flow_021hu0q</outgoing>
+    </serviceTask>
+    <serviceTask id="Activity_0n9py0v" name="Обращение к БД (или не к БД) для получения ожидаемого кода">
+      <extensionElements>
+        <camunda:properties>
+          <camunda:property name="historyTimeToLive" value="30" />
+        </camunda:properties>
+      </extensionElements>
+      <incoming>Flow_0fydu24</incoming>
+      <outgoing>Flow_0htd5kl</outgoing>
+      <property id="Property_0d0al1n" name="__targetRef_placeholder" />
+      <dataInputAssociation id="DataInputAssociation_1oeb1k0">
+        <sourceRef>DataStoreReference_0tk2g4i</sourceRef>
+        <targetRef>Property_0d0al1n</targetRef>
+      </dataInputAssociation>
+    </serviceTask>
+    <serviceTask id="Activity_1bj80by" name="Отправить код подтверждения по SMS">
+      <incoming>Flow_021hu0q</incoming>
+      <outgoing>Flow_03cgvsc</outgoing>
+    </serviceTask>
+    <serviceTask id="Activity_0q4l971" name="Проверить код">
+      <incoming>Flow_0htd5kl</incoming>
+      <outgoing>Flow_00tt3g5</outgoing>
+      <property id="Property_0xvfjzo" name="__targetRef_placeholder" />
+    </serviceTask>
+    <serviceTask id="Activity_0tkxquu" name="Обращение к БД для получения пароля">
+      <extensionElements>
+        <camunda:properties>
+          <camunda:property name="historyTimeToLive" value="30" />
+        </camunda:properties>
+      </extensionElements>
+      <incoming>Flow_1g01p1x</incoming>
+      <outgoing>Flow_1odqrzd</outgoing>
+      <property id="Property_1a1777x" name="__targetRef_placeholder" />
+      <dataInputAssociation id="DataInputAssociation_1536w9t">
+        <sourceRef>DataStoreReference_0tk2g4i</sourceRef>
+        <targetRef>Property_1a1777x</targetRef>
+      </dataInputAssociation>
+    </serviceTask>
+    <serviceTask id="Activity_1kqte2x" name="Запросить пароль">
+      <incoming>Flow_1fkgfws</incoming>
+      <outgoing>Flow_0b3ibv6</outgoing>
+    </serviceTask>
+    <serviceTask id="Activity_1j8vims" name="Проверить пароль">
+      <incoming>Flow_1odqrzd</incoming>
+      <outgoing>Flow_12nr83j</outgoing>
+    </serviceTask>
+    <serviceTask id="Activity_0cyohp5" name="Отправить JWT-токен на клиент">
+      <incoming>Flow_022ke70</incoming>
+      <outgoing>Flow_1birxb2</outgoing>
+    </serviceTask>
+    <serviceTask id="Activity_1r74god" name="Создать и сохранить код в памяти сервера">
+      <incoming>Flow_09fi6y5</incoming>
+      <outgoing>Flow_19h52lx</outgoing>
+    </serviceTask>
+    <serviceTask id="Activity_0s7myc2" name="Запросить пароль">
+      <incoming>Flow_00gjpjf</incoming>
+      <outgoing>Flow_13h2gx5</outgoing>
+    </serviceTask>
+    <serviceTask id="Activity_1ofdteh" name="Обращение к БД для определения спосооба входа">
+      <extensionElements>
+        <camunda:properties>
+          <camunda:property name="historyTimeToLive" value="30" />
+        </camunda:properties>
+      </extensionElements>
+      <incoming>Flow_0i1xloe</incoming>
+      <outgoing>Flow_1ucwrqv</outgoing>
+      <property id="Property_0vuy99p" name="__targetRef_placeholder" />
+      <dataInputAssociation id="DataInputAssociation_1mvq41n">
+        <sourceRef>DataStoreReference_0tk2g4i</sourceRef>
+        <targetRef>Property_0vuy99p</targetRef>
+      </dataInputAssociation>
+    </serviceTask>
+    <boundaryEvent id="Event_0u458oj" attachedToRef="Activity_1ofdteh">
+      <errorEventDefinition id="ErrorEventDefinition_04z0m74" />
+    </boundaryEvent>
+    <sequenceFlow id="Flow_19h52lx" sourceRef="Activity_1r74god" targetRef="Gateway_0lp7u7u" />
+    <parallelGateway id="Gateway_0lp7u7u">
+      <incoming>Flow_19h52lx</incoming>
+      <outgoing>Flow_13jcteh</outgoing>
+      <outgoing>Flow_17g4c0s</outgoing>
+    </parallelGateway>
+    <sequenceFlow id="Flow_13jcteh" sourceRef="Gateway_0lp7u7u" targetRef="Activity_08ryjpf" />
+    <sequenceFlow id="Flow_17g4c0s" sourceRef="Gateway_0lp7u7u" targetRef="Event_0goldzm" />
+    <sequenceFlow id="Flow_11gfjlj" sourceRef="Activity_151zk2v" targetRef="Event_0c3ebdj" />
+    <endEvent id="Event_0c3ebdj">
+      <incoming>Flow_11gfjlj</incoming>
+    </endEvent>
+    <sequenceFlow id="Flow_0bgryor" sourceRef="Event_0goldzm" targetRef="Activity_151zk2v" />
+    <intermediateCatchEvent id="Event_0goldzm" name="Прошла минута спустя создания кода">
+      <incoming>Flow_17g4c0s</incoming>
+      <outgoing>Flow_0bgryor</outgoing>
+      <timerEventDefinition id="TimerEventDefinition_13rl24q">
+        <timeDuration xsi:type="tFormalExpression">PT1M</timeDuration>
+      </timerEventDefinition>
+    </intermediateCatchEvent>
+    <serviceTask id="Activity_151zk2v" name="Очистить код из оперативной памяти">
+      <extensionElements>
+        <camunda:properties>
+          <camunda:property name="camunda:delegateExpression" value="${codeDeletionDelegate}" />
+        </camunda:properties>
+      </extensionElements>
+      <incoming>Flow_0bgryor</incoming>
+      <outgoing>Flow_11gfjlj</outgoing>
+    </serviceTask>
   </process>
   <bpmndi:BPMNDiagram id="BpmnDiagram_1">
     <bpmndi:BPMNPlane id="BpmnPlane_1" bpmnElement="Collaboration_0jlwgm3">
@@ -2111,14 +2111,6 @@
           <omgdc:Bounds x="841" y="1282" width="14" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="BPMNEdge_1mkabpd" bpmnElement="Flow_1heuvli">
-        <omgdi:waypoint x="780" y="1325" />
-        <omgdi:waypoint x="780" y="1420" />
-        <omgdi:waypoint x="915" y="1420" />
-        <bpmndi:BPMNLabel>
-          <omgdc:Bounds x="787" y="1370" width="19" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="BPMNEdge_09ztex8" bpmnElement="Flow_1mo06jh">
         <omgdi:waypoint x="940" y="1340" />
         <omgdi:waypoint x="940" y="1395" />
@@ -2206,6 +2198,14 @@
         <omgdi:waypoint x="2210" y="1320" />
         <omgdi:waypoint x="2342" y="1320" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0j583tl_di" bpmnElement="Flow_0j583tl">
+        <omgdi:waypoint x="780" y="1325" />
+        <omgdi:waypoint x="780" y="1530" />
+        <omgdi:waypoint x="1755" y="1530" />
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="786" y="1425" width="19" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="BPMNShape_16lg58i" bpmnElement="DataStoreReference_1p525iw">
         <omgdc:Bounds x="1815" y="1845" width="50" height="50" />
         <bpmndi:BPMNLabel>
@@ -2213,15 +2213,15 @@
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Participant_0ria0gh_di" bpmnElement="Participant_0ria0gh" isHorizontal="true">
-        <omgdc:Bounds x="400" y="2870" width="2440" height="790" />
+        <omgdc:Bounds x="390" y="2870" width="2450" height="810" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_031jcpe_di" bpmnElement="Lane_031jcpe" isHorizontal="true">
-        <omgdc:Bounds x="430" y="3240" width="2410" height="420" />
+        <omgdc:Bounds x="420" y="3240" width="2420" height="440" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_1bul24k_di" bpmnElement="Lane_1bul24k" isHorizontal="true">
-        <omgdc:Bounds x="430" y="2870" width="2410" height="370" />
+        <omgdc:Bounds x="420" y="2870" width="2420" height="370" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BPMNShape_0cnaqjo" bpmnElement="Event_11vbhjy">
@@ -2230,94 +2230,14 @@
           <omgdc:Bounds x="502" y="3098" width="75" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_1cd88i0" bpmnElement="Activity_00c6ypj">
-        <omgdc:Bounds x="600" y="3030" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_1np7c7c" bpmnElement="Activity_1s4ukah">
-        <omgdc:Bounds x="700" y="3130" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_0hpe7nx" bpmnElement="Activity_08ryjpf">
-        <omgdc:Bounds x="710" y="3270" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_0168dls" bpmnElement="Activity_067p4zs">
-        <omgdc:Bounds x="920" y="3280" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_14f09mk" bpmnElement="Activity_1r74god">
-        <omgdc:Bounds x="710" y="3420" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BPMNShape_1qm82fh" bpmnElement="Gateway_10rbnxk" isMarkerVisible="true">
         <omgdc:Bounds x="1025" y="3555" width="50" height="50" />
         <bpmndi:BPMNLabel>
           <omgdc:Bounds x="1065" y="3590" width="69" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_014hu1u" bpmnElement="Activity_0s7myc2">
-        <omgdc:Bounds x="1000" y="3420" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_1035572" bpmnElement="Activity_1o1uu9a">
-        <omgdc:Bounds x="1090" y="3280" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_03e962b" bpmnElement="Activity_0qfn8or">
-        <omgdc:Bounds x="1000" y="3130" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_1wt20sx" bpmnElement="Activity_0od0iqt">
-        <omgdc:Bounds x="1380" y="3130" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_0zck4j2" bpmnElement="Activity_18n6xyt">
-        <omgdc:Bounds x="1820" y="3130" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_0u2pb89" bpmnElement="Activity_0lgkklw">
-        <omgdc:Bounds x="1240" y="3280" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_0pqorrz" bpmnElement="Activity_1bj80by">
-        <omgdc:Bounds x="1380" y="3280" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_0hf1mdw" bpmnElement="Activity_0n9py0v">
-        <omgdc:Bounds x="1510" y="3280" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_0oojf6j" bpmnElement="Activity_0q4l971">
-        <omgdc:Bounds x="1650" y="3280" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_0shz2gv" bpmnElement="Activity_1kqte2x">
-        <omgdc:Bounds x="1820" y="3430" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_1ibjovi" bpmnElement="Activity_1ofdteh">
-        <omgdc:Bounds x="600" y="3480" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_1ex2uu4" bpmnElement="Event_0goldzm">
-        <omgdc:Bounds x="712" y="3562" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <omgdc:Bounds x="688" y="3605" width="84" height="40" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_0rcip11" bpmnElement="Activity_151zk2v">
-        <omgdc:Bounds x="780" y="3540" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BPMNShape_1yisiqm" bpmnElement="Gateway_0wttwq7">
         <omgdc:Bounds x="2245" y="3285" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_1oqxcce" bpmnElement="Activity_1j8vims">
-        <omgdc:Bounds x="2070" y="3270" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_0t5dneh" bpmnElement="Activity_0tkxquu">
-        <omgdc:Bounds x="1930" y="3270" width="100" height="80" />
-        <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BPMNShape_0ncrvw2" bpmnElement="Gateway_1fjxdbd" isMarkerVisible="true">
         <omgdc:Bounds x="2375" y="3285" width="50" height="50" />
@@ -2331,21 +2251,91 @@
           <omgdc:Bounds x="2519" y="3455" width="83" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_155zx8u" bpmnElement="Event_1u6uqjb">
-        <omgdc:Bounds x="2682" y="3092" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <omgdc:Bounds x="2662" y="3135" width="76" height="80" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_0dx1ke4" bpmnElement="Activity_0cyohp5">
-        <omgdc:Bounds x="2510" y="3270" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BPMNShape_1ek4p4k" bpmnElement="Event_0q9v5rz">
         <omgdc:Bounds x="2772" y="3092" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="2774" y="3135" width="32" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1brimvl_di" bpmnElement="Activity_1s4ukah">
+        <omgdc:Bounds x="700" y="3130" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1tjbl8m_di" bpmnElement="Activity_00c6ypj">
+        <omgdc:Bounds x="600" y="3030" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0zzd9q2_di" bpmnElement="Activity_0qfn8or">
+        <omgdc:Bounds x="1000" y="3130" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1im86dd_di" bpmnElement="Activity_0od0iqt">
+        <omgdc:Bounds x="1380" y="3130" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_08msltg_di" bpmnElement="Activity_18n6xyt">
+        <omgdc:Bounds x="1820" y="3130" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1nli5ml_di" bpmnElement="Activity_08ryjpf">
+        <omgdc:Bounds x="710" y="3270" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1elw7hp_di" bpmnElement="Activity_067p4zs">
+        <omgdc:Bounds x="920" y="3280" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1q2sexj_di" bpmnElement="Activity_1o1uu9a">
+        <omgdc:Bounds x="1090" y="3280" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0va5258_di" bpmnElement="Activity_0lgkklw">
+        <omgdc:Bounds x="1240" y="3280" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1wlhuqw_di" bpmnElement="Activity_0n9py0v">
+        <omgdc:Bounds x="1510" y="3280" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0ls91cp_di" bpmnElement="Activity_1bj80by">
+        <omgdc:Bounds x="1380" y="3280" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0qbirxq_di" bpmnElement="Activity_0q4l971">
+        <omgdc:Bounds x="1650" y="3280" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0kgrh8m_di" bpmnElement="Activity_0tkxquu">
+        <omgdc:Bounds x="1930" y="3270" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1sxdyig_di" bpmnElement="Activity_1kqte2x">
+        <omgdc:Bounds x="1820" y="3430" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_03oqqbb_di" bpmnElement="Activity_1j8vims">
+        <omgdc:Bounds x="2070" y="3270" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0lgfc7f_di" bpmnElement="Activity_0cyohp5">
+        <omgdc:Bounds x="2510" y="3270" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_05e2w3h_di" bpmnElement="Activity_1r74god">
+        <omgdc:Bounds x="710" y="3420" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_03r73ix_di" bpmnElement="Activity_0s7myc2">
+        <omgdc:Bounds x="1000" y="3420" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1bl60g0_di" bpmnElement="Activity_1ofdteh">
+        <omgdc:Bounds x="600" y="3540" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1xid0i0_di" bpmnElement="Gateway_0lp7u7u">
+        <omgdc:Bounds x="665" y="3365" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0c3ebdj_di" bpmnElement="Event_0c3ebdj">
+        <omgdc:Bounds x="482" y="3632" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_1ex2uu4" bpmnElement="Event_0goldzm">
+        <omgdc:Bounds x="482" y="3372" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="458" y="3322" width="84" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_08z9zui_di" bpmnElement="Activity_151zk2v">
+        <omgdc:Bounds x="450" y="3460" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BPMNShape_1o841se" bpmnElement="Event_0u458oj">
-        <omgdc:Bounds x="582" y="3492" width="36" height="36" />
+        <omgdc:Bounds x="582" y="3602" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="BPMNEdge_1w4dbgi" bpmnElement="Flow_0bqjkpo">
         <omgdi:waypoint x="558" y="3070" />
@@ -2353,7 +2343,7 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0i1xloe_di" bpmnElement="Flow_0i1xloe">
         <omgdi:waypoint x="650" y="3110" />
-        <omgdi:waypoint x="650" y="3480" />
+        <omgdi:waypoint x="650" y="3540" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0mj8xjs_di" bpmnElement="Flow_0mj8xjs">
         <omgdi:waypoint x="760" y="3270" />
@@ -2363,10 +2353,6 @@
         <omgdi:waypoint x="800" y="3170" />
         <omgdi:waypoint x="960" y="3170" />
         <omgdi:waypoint x="960" y="3280" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="BPMNEdge_0pqtl9d" bpmnElement="Flow_0egva8h">
-        <omgdi:waypoint x="760" y="3420" />
-        <omgdi:waypoint x="760" y="3350" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="BPMNEdge_1iqccgg" bpmnElement="Flow_1efusuc">
         <omgdi:waypoint x="970" y="3360" />
@@ -2383,16 +2369,9 @@
           <omgdc:Bounds x="910" y="3563" width="60" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="BPMNEdge_0rfpgbc" bpmnElement="Flow_18zt34f">
-        <omgdi:waypoint x="760" y="3500" />
-        <omgdi:waypoint x="760" y="3536" />
-        <omgdi:waypoint x="730" y="3536" />
-        <omgdi:waypoint x="730" y="3562" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="BPMNEdge_1bqlacr" bpmnElement="Flow_1ucwrqv">
-        <omgdi:waypoint x="700" y="3520" />
-        <omgdi:waypoint x="1050" y="3520" />
-        <omgdi:waypoint x="1050" y="3555" />
+        <omgdi:waypoint x="700" y="3580" />
+        <omgdi:waypoint x="1025" y="3580" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="BPMNEdge_0jsujgx" bpmnElement="Flow_1fkgfws">
         <omgdi:waypoint x="1075" y="3580" />
@@ -2457,10 +2436,6 @@
         <omgdi:waypoint x="2270" y="3380" />
         <omgdi:waypoint x="2270" y="3335" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="BPMNEdge_1aghgwx" bpmnElement="Flow_0u10b43">
-        <omgdi:waypoint x="748" y="3580" />
-        <omgdi:waypoint x="780" y="3580" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="BPMNEdge_0uyj2fk" bpmnElement="Flow_12nr83j">
         <omgdi:waypoint x="2170" y="3310" />
         <omgdi:waypoint x="2245" y="3310" />
@@ -2489,13 +2464,32 @@
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1birxb2_di" bpmnElement="Flow_1birxb2">
-        <omgdi:waypoint x="2560" y="3270" />
-        <omgdi:waypoint x="2560" y="3110" />
-        <omgdi:waypoint x="2682" y="3110" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="BPMNEdge_0vxdzyp" bpmnElement="Flow_0koum0y">
-        <omgdi:waypoint x="2718" y="3110" />
+        <omgdi:waypoint x="2610" y="3310" />
+        <omgdi:waypoint x="2691" y="3310" />
+        <omgdi:waypoint x="2691" y="3110" />
         <omgdi:waypoint x="2772" y="3110" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_19h52lx_di" bpmnElement="Flow_19h52lx">
+        <omgdi:waypoint x="710" y="3460" />
+        <omgdi:waypoint x="690" y="3460" />
+        <omgdi:waypoint x="690" y="3415" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_13jcteh_di" bpmnElement="Flow_13jcteh">
+        <omgdi:waypoint x="690" y="3365" />
+        <omgdi:waypoint x="690" y="3310" />
+        <omgdi:waypoint x="710" y="3310" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_17g4c0s_di" bpmnElement="Flow_17g4c0s">
+        <omgdi:waypoint x="665" y="3390" />
+        <omgdi:waypoint x="518" y="3390" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_11gfjlj_di" bpmnElement="Flow_11gfjlj">
+        <omgdi:waypoint x="500" y="3540" />
+        <omgdi:waypoint x="500" y="3632" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0bgryor_di" bpmnElement="Flow_0bgryor">
+        <omgdi:waypoint x="500" y="3408" />
+        <omgdi:waypoint x="500" y="3460" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="BPMNShape_16rc9eh" bpmnElement="DataStoreReference_0tk2g4i">
         <omgdc:Bounds x="1035" y="3715" width="50" height="50" />
@@ -2503,10 +2497,10 @@
           <omgdc:Bounds x="1025" y="3772" width="72" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="TextAnnotation_1ilj1qj_di" bpmnElement="TextAnnotation_1ilj1qj">
-        <omgdc:Bounds x="1168" y="900" width="162.97599337748346" height="38.98489238410596" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="BPMNEdge_054mtj9" bpmnElement="Association_04wke5o">
+        <omgdi:waypoint x="600" y="3611" />
+        <omgdi:waypoint x="541" y="3710" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="TextAnnotation_1ce6d68_di" bpmnElement="TextAnnotation_1ce6d68">
         <omgdc:Bounds x="1830" y="4540" width="100" height="113" />
         <bpmndi:BPMNLabel />
@@ -2537,10 +2531,6 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BPMNShape_1dkcrs5" bpmnElement="TextAnnotation_01ghcci">
         <omgdc:Bounds x="1255" y="3400" width="100" height="93" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_15hvdhy" bpmnElement="TextAnnotation_1841duq">
-        <omgdc:Bounds x="510" y="3270" width="100" height="138" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="DataInputAssociation_1dptvwn_di" bpmnElement="DataInputAssociation_1dptvwn">
@@ -2626,7 +2616,7 @@
       <bpmndi:BPMNEdge id="BPMNEdge_0uq6ns2" bpmnElement="DataInputAssociation_1mvq41n">
         <omgdi:waypoint x="1035" y="3740" />
         <omgdi:waypoint x="650" y="3740" />
-        <omgdi:waypoint x="650" y="3560" />
+        <omgdi:waypoint x="650" y="3620" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="BPMNEdge_1qruk8l" bpmnElement="DataInputAssociation_1536w9t">
         <omgdi:waypoint x="1085" y="3740" />
@@ -2697,14 +2687,14 @@
         <omgdi:waypoint x="1700" y="1729" />
         <omgdi:waypoint x="1790" y="1720" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="BPMNEdge_054mtj9" bpmnElement="Association_04wke5o">
-        <omgdi:waypoint x="601" y="3487" />
-        <omgdi:waypoint x="558" y="3408" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="BPMNEdge_19an6x4" bpmnElement="Association_1no01rb">
-        <omgdi:waypoint x="1263" y="3360" />
-        <omgdi:waypoint x="1315" y="3400" />
+        <omgdi:waypoint x="1290" y="3381" />
+        <omgdi:waypoint x="1305" y="3392" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="BPMNShape_15hvdhy" bpmnElement="TextAnnotation_1841duq">
+        <omgdc:Bounds x="490" y="3710" width="100" height="138" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </definitions>

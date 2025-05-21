@@ -25,7 +25,6 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final CurrentUserService currentUserService;
-    private final SmsService smsService;
     private final CodeStorage codeStorage;
     private final List<AuthStrategy> strategies;
     private final PasswordEncoder passwordEncoder;
@@ -162,5 +161,9 @@ public class UserService {
         if (!phoneNumber.matches("^((8|\\+7)[\\- ]?)?(\\(?\\d{3}\\)?[\\- ]?)?[\\d\\- ]{7,10}$")) {
             throw new InvalidPhoneNumberException("Invalid phone number format: " + phoneNumber);
         }
+    }
+
+    public void publishSmsCode(String phone, String code) {
+        publisher.publish(new SmsMessage(phone, code), "sms.queue");
     }
 }
