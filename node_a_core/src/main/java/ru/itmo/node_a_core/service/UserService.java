@@ -15,7 +15,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static ru.itmo.common.entity.enums.AuthMethod.SMS_ONLY;
 
@@ -26,32 +28,17 @@ public class UserService {
     private final UserRepository userRepository;
     private final CurrentUserService currentUserService;
     private final CodeStorage codeStorage;
-    private final List<AuthStrategy> strategies;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final MqttPublisherService publisher;
 
     @Transactional
-    public StartAuthResponse startAuth(String phoneNumber) {
-        validatePhoneNumber(phoneNumber);
-
-        User user = userRepository.findByPhoneNumber(phoneNumber).orElse(null);
-        if (user == null) {
-            user = User.builder()
-                    .phoneNumber(phoneNumber)
-                    .authMethod(SMS_ONLY)
-                    .status(UserStatus.ACTIVE)
-                    .createdAt(LocalDateTime.now())
-                    .build();
-            user = userRepository.save(user);
-        }
-
-        AuthMethod method = user.getAuthMethod();
+    public StartAuthResponse startAuth(String phone) {
+        AuthMethod method = determineAuthMethod(phone);
 
         if (method == SMS_ONLY || method == AuthMethod.PASSWORD_SMS) {
-            String code = generateRandomCode();
-            codeStorage.saveCodeForPhone(phoneNumber, code);
-            publisher.publish(new SmsMessage(phoneNumber, code), "sms.queue");
+            String code = generateAndSaveSmsCode(phone);
+            publishSmsCode(phone, code);
         }
 
         return StartAuthResponse.builder()
@@ -61,43 +48,91 @@ public class UserService {
                 .build();
     }
 
+    public String generateAndSaveSmsCode(String phone) {
+        String code = String.valueOf(ThreadLocalRandom.current().nextInt(1000, 9999));
+        codeStorage.saveCodeForPhone(phone, code);
+        return code;
+    }
+
+    @Transactional
+    public AuthMethod determineAuthMethod(String phone) {
+        User user = userRepository.findByPhoneNumber(phone).orElse(null);
+        if (user == null) {
+            user = User.builder()
+                    .phoneNumber(phone)
+                    .authMethod(SMS_ONLY)
+                    .status(UserStatus.ACTIVE)
+                    .createdAt(LocalDateTime.now())
+                    .build();
+            user = userRepository.save(user);
+        }
+
+        return user.getAuthMethod();
+    }
+
+    @Transactional
     public AuthCompleteResponse completeAuth(CompleteAuthRequest request) {
-        validatePhoneNumber(request.getPhoneNumber());
+        String phone = request.getPhoneNumber();
+        validatePhoneNumber(phone);
 
-        User user = userRepository.findByPhoneNumber(request.getPhoneNumber())
-                .orElseThrow(() -> new UserNotFoundException("User with phone " + request.getPhoneNumber() + " not found"));
+        User user = fetchUserOrThrow(phone);
 
-        String storedCode = codeStorage.getCodeForPhone(request.getPhoneNumber());
+        checkSmsCodeIfNeeded(user, request.getSmsCode());
 
-        if (user.getAuthMethod() == AuthMethod.SMS_ONLY && storedCode == null) {
-            throw new WrongPhoneNumberException("No code was found for the specified phone number. " +
-                    "The code may have been sent to another number.");
-        }
+        String hash = fetchPasswordHashIfNeeded(user);
+        verifyPasswordIfNeeded(request.getPassword(), hash);
 
-        AuthStrategy strategy = strategies.stream()
-                .filter(s -> s.getAuthMethod() == user.getAuthMethod())
-                .findFirst()
-                .orElseThrow(() -> new AuthenticationException("No strategy for: " + user.getAuthMethod()));
+        removeCodeAfterAuth(user);
 
-        boolean ok = strategy.authenticate(user, request);
-        if (!ok) {
-            throw new WrongCredentialsException("Authentication failed for method = " + user.getAuthMethod());
-        }
-
-        if (user.getAuthMethod() == AuthMethod.SMS_ONLY || user.getAuthMethod() == AuthMethod.PASSWORD_SMS) {
-            codeStorage.removeCodeForPhone(request.getPhoneNumber());
-        }
-
-        String token = jwtService.generateToken(user);
+        String token = generateJwtToken(user);
         return AuthCompleteResponse.builder()
                 .token(token)
                 .build();
     }
+    public User fetchUserOrThrow(String phone) {
+        return userRepository.findByPhoneNumber(phone)
+                .orElseThrow(() ->
+                        new UserNotFoundException("User with phone " + phone + " not found"));
+    }
 
-    private String generateRandomCode() {
-        Random random = new Random();
-        int code = 1000 + random.nextInt(9000);
-        return String.valueOf(code);
+    public void checkSmsCodeIfNeeded(User user, String enteredCode) {
+        if (user.getAuthMethod() == AuthMethod.SMS_ONLY ||
+                user.getAuthMethod() == AuthMethod.PASSWORD_SMS) {
+
+            String stored = codeStorage.getCodeForPhone(user.getPhoneNumber());
+            if (stored == null || !stored.equals(enteredCode)) {
+                throw new WrongCredentialsException("Invalid SMS code");
+            }
+        }
+    }
+
+    public String fetchPasswordHashIfNeeded(User user) {
+        if (user.getAuthMethod() == AuthMethod.PASSWORD_ONLY ||
+                user.getAuthMethod() == AuthMethod.PASSWORD_SMS) {
+            String hash = user.getPassword();
+            if (hash == null) {
+                throw new AuthenticationException("Password not set for user");
+            }
+            return hash;
+        }
+        return null;
+    }
+
+    public void verifyPasswordIfNeeded(String plainPassword, String hash) {
+        if (hash != null && !passwordEncoder.matches(plainPassword, hash)) {
+            throw new WrongCredentialsException("Invalid password");
+        }
+    }
+
+    public void removeCodeAfterAuth(User user) {
+        if (user.getAuthMethod() == AuthMethod.SMS_ONLY ||
+                user.getAuthMethod() == AuthMethod.PASSWORD_SMS) {
+            codeStorage.removeCodeForPhone(user.getPhoneNumber());
+        }
+    }
+
+    public String generateJwtToken(User user) {
+        return jwtService.generateToken(user);
     }
 
     @Transactional

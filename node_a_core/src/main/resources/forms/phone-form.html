@@ -1,0 +1,14 @@
+<script cam-script type="text/form-script">
+</script>
+<div class="form-group">
+    <label for="phone">Номер телефона</label>
+    <input
+            type="text"
+            id="phone"
+            cam-variable-name="phoneNumber"
+            cam-variable-type="String"
+            required
+            pattern="^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$"
+            title="+7 (xxx) xxx-xxxx"
+            class="form-control"/>
+</div>
