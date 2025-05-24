@@ -47,22 +47,32 @@ public class AdminRequestService {
         }
 
         if (userRepository.existsByRolesContaining(Role.ADMIN)) {
-            user.setAdminRequestStatus(AdminRequestStatus.PENDING);
-            userRepository.save(user);
-
-            publisher.publish(new AdminRequestMessage(user.getEmail(), "Request for admin approval submitted"),
-                    "admin.queue");
-
-            return new SimpleResponse("The request for ADMIN rights has been submitted for review.");
+            return pendingAdminApproval(user);
         } else {
-            Set<Role> roles = new HashSet<>(user.getRoles());
-            roles.add(Role.ADMIN);
-            user.setRoles(roles);
-            user.setAdminRequestStatus(AdminRequestStatus.ACCEPTED);
-            userRepository.save(user);
-            return new SimpleResponse("There are no administrators in the system." +
-                    " The user has been granted ADMIN rights immediately.");
+            return acceptedAdminApproval(user);
         }
+    }
+
+    @Transactional
+    public SimpleResponse pendingAdminApproval(User user) {
+        user.setAdminRequestStatus(AdminRequestStatus.PENDING);
+        userRepository.save(user);
+
+        publisher.publish(new AdminRequestMessage(user.getEmail(), "Request for admin approval submitted"),
+                "admin.queue");
+
+        return new SimpleResponse("The request for ADMIN rights has been submitted for review.");
+    }
+
+    @Transactional
+    public SimpleResponse acceptedAdminApproval(User user) {
+        Set<Role> roles = new HashSet<>(user.getRoles());
+        roles.add(Role.ADMIN);
+        user.setRoles(roles);
+        user.setAdminRequestStatus(AdminRequestStatus.ACCEPTED);
+        userRepository.save(user);
+        return new SimpleResponse("There are no administrators in the system." +
+                " The user has been granted ADMIN rights immediately.");
     }
 
     @Transactional(readOnly = true)

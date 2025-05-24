@@ -28,7 +28,7 @@ import ru.itmo.node_b_worker.service.EmailService;
 public class NodeBWorkerApplication {
 	public static void main(String[] args) {
 		Dotenv dotenv = Dotenv.configure()
-				.directory("../")
+//				.directory("../")
 				.filename(".env")
 				.load();
 		dotenv.entries().forEach(entry ->
