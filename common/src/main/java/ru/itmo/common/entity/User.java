@@ -11,6 +11,7 @@ import ru.itmo.common.entity.enums.AuthMethod;
 import ru.itmo.common.entity.enums.Role;
 import ru.itmo.common.entity.enums.UserStatus;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.HashSet;
@@ -68,6 +69,9 @@ public class User implements UserDetails {
 
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Column(name = "tariff_activated_at")
+    private Instant tariffActivatedAt;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
