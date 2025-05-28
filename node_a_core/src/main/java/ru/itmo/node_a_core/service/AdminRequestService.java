@@ -39,30 +39,68 @@ public class AdminRequestService {
     private final CurrentUserService currentUserService;
 
     @Transactional
-    public SimpleResponse requestAdminApproval() {
-        User user = currentUserService.getCurrentUserOrThrow();
+    public SimpleResponse requestAdminApproval(Long userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         if (user.getRoles().contains(Role.ADMIN)) {
-            throw new AdminAlreadyGrantedException("User already has ADMIN rights.");
+            throw new AdminAlreadyGrantedException("Already ADMIN");
         }
 
-        if (userRepository.existsByRolesContaining(Role.ADMIN)) {
-            user.setAdminRequestStatus(AdminRequestStatus.PENDING);
-            userRepository.save(user);
+        boolean anyAdminExists = userRepository.existsByRolesContaining(Role.ADMIN);
 
-            publisher.publish(new AdminRequestMessage(user.getEmail(), "Request for admin approval submitted"),
-                    "admin.queue");
-
-            return new SimpleResponse("The request for ADMIN rights has been submitted for review.");
+        if (anyAdminExists) {
+            changeStatus(user, AdminRequestStatus.PENDING);
+            publisher.publish(new AdminRequestMessage(user.getEmail(),
+                    "Admin request submitted"), "admin.queue");
+            return new SimpleResponse("Request sent for review");
         } else {
-            Set<Role> roles = new HashSet<>(user.getRoles());
-            roles.add(Role.ADMIN);
-            user.setRoles(roles);
-            user.setAdminRequestStatus(AdminRequestStatus.ACCEPTED);
-            userRepository.save(user);
-            return new SimpleResponse("There are no administrators in the system." +
-                    " The user has been granted ADMIN rights immediately.");
+            grantAdmin(user);
+            return new SimpleResponse("No admins. Rights granted immediately");
         }
+    }
+
+    @Transactional
+    public void approve(Long id)  { changeStatus(id, AdminRequestStatus.ACCEPTED); }
+    @Transactional
+    public void reject(Long id)   { changeStatus(id, AdminRequestStatus.REJECTED); }
+
+    @Transactional
+    public void pendingAdminApproval(Long applicantId) {
+
+        User user = userRepository.findById(applicantId)
+                .orElseThrow(() ->
+                        new UserNotFoundException("User not found: " + applicantId));
+
+        if (user.getRoles().contains(Role.ADMIN)) {
+            throw new AdminAlreadyGrantedException("User is already ADMIN");
+        }
+
+        if (user.getAdminRequestStatus() == AdminRequestStatus.PENDING) {
+            return;
+        }
+
+        user.setAdminRequestStatus(AdminRequestStatus.PENDING);
+        userRepository.save(user);
+
+        publisher.publish(new AdminRequestMessage(
+                        user.getEmail(),
+                        "Admin request submitted"),
+                "admin.queue");
+    }
+
+    @Transactional
+    public SimpleResponse acceptedAdminApproval() {
+        User user = currentUserService.getCurrentUserOrThrow();
+
+        Set<Role> roles = new HashSet<>(user.getRoles());
+        roles.add(Role.ADMIN);
+        user.setRoles(roles);
+        user.setAdminRequestStatus(AdminRequestStatus.ACCEPTED);
+        userRepository.save(user);
+        return new SimpleResponse("There are no administrators in the system." +
+                " The user has been granted ADMIN rights immediately.");
     }
 
     @Transactional(readOnly = true)
@@ -122,5 +160,27 @@ public class AdminRequestService {
 
         publisher.publish(new AdminRequestMessage(user.getEmail(), "Request for admin approval rejected"),
                 "admin.queue");
+    }
+
+    private void changeStatus(Long id, AdminRequestStatus st) {
+        User u = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+        changeStatus(u, st);
+    }
+
+    private void changeStatus(User u, AdminRequestStatus st) {
+        if (st == AdminRequestStatus.ACCEPTED) { grantAdmin(u); return; }
+        u.setAdminRequestStatus(st);
+        userRepository.save(u);
+    }
+
+    private void grantAdmin(User user){
+        Set<Role> roles = new HashSet<>(user.getRoles());
+        roles.add(Role.ADMIN);
+        user.setRoles(roles);
+        user.setAdminRequestStatus(AdminRequestStatus.ACCEPTED);
+        userRepository.save(user);
+        publisher.publish(new AdminRequestMessage(user.getEmail(),
+                "Admin rights granted"), "admin.queue");
     }
 }

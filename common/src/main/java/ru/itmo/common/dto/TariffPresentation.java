@@ -2,6 +2,8 @@ package ru.itmo.common.dto;
 
 import ru.itmo.common.entity.Tariff;
 
+import java.math.BigDecimal;
+
 public record TariffPresentation(
         Long id,
         String name,
@@ -9,7 +11,7 @@ public record TariffPresentation(
         Integer gigabyteCount,
         Integer minutesCount,
         Integer smsCount,
-        Double price
+        BigDecimal price
 ) {
     public static TariffPresentation create(Tariff tariff) {
         return new TariffPresentation(

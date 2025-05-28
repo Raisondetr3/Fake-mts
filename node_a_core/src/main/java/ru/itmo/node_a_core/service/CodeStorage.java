@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Getter
 @Service
@@ -24,6 +25,14 @@ public class CodeStorage {
 
     public void removeCodeForPhone(String phone) {
         phoneToCode.remove(phone);
+    }
+
+    public Map<String, String> getAllCodes() {
+        return phoneToCode.entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> entry.getValue().getFirst()
+                ));
     }
 }
 

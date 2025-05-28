@@ -236,4 +236,11 @@ public class GlobalExceptionHandler {
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
+
+    @ExceptionHandler(TariffAlreadyActiveException.class)
+    public ResponseEntity<Object> handleTariffAlreadyActive(TariffAlreadyActiveException ex) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(Map.of("error", ex.getMessage()));
+    }
 }

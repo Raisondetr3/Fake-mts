@@ -11,6 +11,7 @@ import ru.itmo.common.entity.enums.AuthMethod;
 import ru.itmo.common.entity.enums.Role;
 import ru.itmo.common.entity.enums.UserStatus;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -55,8 +56,9 @@ public class User implements UserDetails {
     private String inn;
 
     @NotNull
+    @Column(nullable = false, precision = 19, scale = 2)
     @Builder.Default
-    private Double balance = 0.0;
+    private BigDecimal balance = BigDecimal.ZERO;
 
     @ManyToOne
     @JoinColumn(name = "tariff_id")

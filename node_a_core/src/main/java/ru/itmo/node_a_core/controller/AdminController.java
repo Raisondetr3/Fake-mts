@@ -14,12 +14,11 @@ import java.util.List;
 @RequestMapping("/api/admin")
 @RequiredArgsConstructor
 public class AdminController {
-
     private final AdminRequestService adminRequestService;
 
     @PostMapping("/request")
-    public ResponseEntity<SimpleResponse> requestAdminApproval() {
-        SimpleResponse responseMessage = adminRequestService.requestAdminApproval();
+    public ResponseEntity<SimpleResponse> requestAdminApproval(@RequestParam Long targetUserId) {
+        SimpleResponse responseMessage = adminRequestService.requestAdminApproval(targetUserId);
         return ResponseEntity.ok(responseMessage);
     }
 

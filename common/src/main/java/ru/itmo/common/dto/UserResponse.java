@@ -3,6 +3,7 @@ package ru.itmo.common.dto;
 import lombok.*;
 import ru.itmo.common.entity.User;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -16,7 +17,7 @@ public class UserResponse {
     private String fullName;
     private String snils;
     private String inn;
-    private Double balance;
+    private BigDecimal balance;
     private String authMethod;
     private String status;
     private LocalDateTime createdAt;

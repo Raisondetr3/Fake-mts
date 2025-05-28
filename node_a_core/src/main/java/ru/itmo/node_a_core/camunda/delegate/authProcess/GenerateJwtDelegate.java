@@ -1,4 +1,4 @@
-package ru.itmo.node_a_core.delegate.authProcess;
+package ru.itmo.node_a_core.camunda.delegate.authProcess;
 
 import lombok.RequiredArgsConstructor;
 import org.camunda.bpm.engine.delegate.DelegateExecution;

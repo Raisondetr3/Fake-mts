@@ -9,7 +9,6 @@ import org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import ru.itmo.node_b_worker.service.EmailService;
 
 @Slf4j
 @SpringBootApplication(
@@ -38,11 +37,11 @@ public class NodeBWorkerApplication {
 		SpringApplication.run(NodeBWorkerApplication.class, args);
 	}
 
-	@Bean
-	public ApplicationRunner testMailer(EmailService emailService) {
-		return args -> {
-			emailService.sendEmail("Aakuma1337@gmail.com", "test+");
-			log.info("SSendm");
-		};
-	}
+//	@Bean
+//	public ApplicationRunner testMailer(EmailService emailService) {
+//		return args -> {
+//			emailService.sendEmail("Aakuma1337@gmail.com", "test", "test+");
+//			log.info("SSendm");
+//		};
+//	}
 }

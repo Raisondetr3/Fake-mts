@@ -5,6 +5,8 @@ import jakarta.validation.constraints.Positive;
 import lombok.Data;
 import org.springframework.validation.annotation.Validated;
 
+import java.math.BigDecimal;
+
 @Data
 @Validated
 public class UserPatchRequest {
@@ -23,5 +25,5 @@ public class UserPatchRequest {
     private String email;
 
     @Positive
-    private Double balance;
+    private BigDecimal balance;
 }

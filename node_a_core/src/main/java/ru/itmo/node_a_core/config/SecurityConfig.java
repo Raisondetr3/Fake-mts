@@ -65,7 +65,10 @@ public class SecurityConfig {
 
                         .requestMatchers("/api/users/start-auth/**",
                                 "/api/users/complete-auth/**",
-                                "/api/tariffs/**").permitAll()
+                                "/api/tariffs/**",
+                                "/api/debug/**",
+                                "/api/workflow/**",
+                                "/api/debug/**").permitAll()
 
                         .requestMatchers(HttpMethod.OPTIONS).permitAll()
 
