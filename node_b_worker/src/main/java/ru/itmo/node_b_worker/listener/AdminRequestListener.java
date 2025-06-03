@@ -5,19 +5,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 import ru.itmo.common.dto.AdminRequestMessage;
-//import ru.itmo.node_b_worker.service.EmailService;
+import ru.itmo.node_b_worker.service.EmailService;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class AdminRequestListener {
-//   private final EmailService emailService;
+   private final EmailService emailService;
 
     @RabbitListener(
             queues = "admin.queue",
             containerFactory = "rabbitListenerContainerFactory"
     )
     public void onAdminRequestMessage(AdminRequestMessage message) {
-//        emailService.sendEmail(message.getEmail(), "Тестовое письмо", message.getMessage());
+        emailService.sendEmail(message.getEmail(), "Тестовое письмо", message.getMessage());
     }
 }
