@@ -9,18 +9,18 @@ public class InitVariablesListener implements ExecutionListener {
 
     @Override
     public void notify(DelegateExecution execution) throws Exception {
-        execution.setVariable("userAuthenticated", "No");
+//        execution.setVariable("userAuthenticated", "No");
 
-        execution.setVariable("oneUserOperations", "Yes");
-        execution.setVariable("needToChangeCategory", "Yes");
-        execution.setVariable("needToChangePeriod", "Yes");
+//        execution.setVariable("oneUserOperations", "Yes");
+//        execution.setVariable("needToChangeCategory", "Yes");
+//        execution.setVariable("needToChangePeriod", "Yes");
 //        execution.setVariable("thePeriod", "In the last week");
 
-        execution.setVariable("needToChangeInfo", "Yes");
-        execution.setVariable("needToAddPayMethod", "No");
-        execution.setVariable("needToCutomizeSecurity", "No");
+//        execution.setVariable("needToChangeInfo", "Yes");
+//        execution.setVariable("needToAddPayMethod", "No");
+//        execution.setVariable("needToCutomizeSecurity", "No");
 
-        execution.setVariable("isThereAnAdmin", "Yes");
-        execution.setVariable("userIsAdmin", "No");
+//        execution.setVariable("isThereAnAdmin", "Yes");
+//        execution.setVariable("userIsAdmin", "No");
     }
 }
