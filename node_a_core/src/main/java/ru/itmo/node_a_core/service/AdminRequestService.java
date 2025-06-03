@@ -63,6 +63,7 @@ public class AdminRequestService {
 
     @Transactional
     public void approve(Long id)  { changeStatus(id, AdminRequestStatus.ACCEPTED); }
+
     @Transactional
     public void reject(Long id)   { changeStatus(id, AdminRequestStatus.REJECTED); }
 
