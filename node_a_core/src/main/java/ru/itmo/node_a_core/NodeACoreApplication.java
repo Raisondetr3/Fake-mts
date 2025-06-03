@@ -25,8 +25,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 public class NodeACoreApplication {
     public static void main(String[] args) {
         Dotenv dotenv = Dotenv.configure()
-                .directory("../")
-                .filename(".env")
+//                .directory("../")
+//                .filename(".env")
                 .load();
         dotenv.entries().forEach(entry ->
                 System.setProperty(entry.getKey(), entry.getValue())

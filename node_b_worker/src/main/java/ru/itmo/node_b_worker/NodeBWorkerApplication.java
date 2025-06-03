@@ -30,7 +30,7 @@ public class NodeBWorkerApplication {
 	public static void main(String[] args) {
 		Dotenv dotenv = Dotenv.configure()
 //				.directory("../")
-				.filename(".env")
+//				.filename(".env")
 				.load();
 		dotenv.entries().forEach(entry ->
 				System.setProperty(entry.getKey(), entry.getValue())
