@@ -65,7 +65,7 @@ public class TariffService {
         Tariff tariff = tariffRepository.findById(tariffId)
                 .orElseThrow(() -> new TariffNotFoundException("Tariff not found: " + tariffId));
 
-        if (tariffId.equals(user.getTariff().getId())) {
+        if (user.getTariff() != null && tariffId.equals(user.getTariff().getId())) {
             throw new TariffAlreadyActiveException(
                     "Tariff is already active: id=" + tariffId
             );

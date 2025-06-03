@@ -1,4 +1,4 @@
-package ru.itmo.node_a_core.listener;
+package ru.itmo.node_a_core.camunda.listener;
 
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.ExecutionListener;
@@ -11,9 +11,10 @@ public class InitVariablesListener implements ExecutionListener {
     public void notify(DelegateExecution execution) throws Exception {
         execution.setVariable("userAuthenticated", "No");
 
+        execution.setVariable("oneUserOperations", "Yes");
         execution.setVariable("needToChangeCategory", "Yes");
         execution.setVariable("needToChangePeriod", "Yes");
-        execution.setVariable("thePeriod", "In the last week");
+//        execution.setVariable("thePeriod", "In the last week");
 
         execution.setVariable("needToChangeInfo", "Yes");
         execution.setVariable("needToAddPayMethod", "No");

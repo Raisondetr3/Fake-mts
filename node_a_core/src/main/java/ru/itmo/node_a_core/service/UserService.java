@@ -139,6 +139,11 @@ public class UserService {
     public UserResponse patchUser(UserPatchRequest patch) {
         User user = currentUserService.getCurrentUserOrThrow();
 
+        return patchUser(patch, user);
+    }
+
+    @Transactional
+    public UserResponse patchUser(UserPatchRequest patch, User user) {
         if (patch.getFullName() != null) {
             user.setFullName(patch.getFullName());
         }
@@ -181,6 +186,19 @@ public class UserService {
     public void changeAuthMethod(ChangeAuthMethodRequest dto) {
         User user = currentUserService.getCurrentUserOrThrow();
 
+        user.setAuthMethod(dto.getNewMethod());
+        if ((dto.getNewMethod() == AuthMethod.PASSWORD_ONLY
+                || dto.getNewMethod() == AuthMethod.PASSWORD_SMS)
+                && dto.getNewPassword() != null)
+        {
+            user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
+        }
+
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void changeAuthMethod(ChangeAuthMethodRequest dto, User user) {
         user.setAuthMethod(dto.getNewMethod());
         if ((dto.getNewMethod() == AuthMethod.PASSWORD_ONLY
                 || dto.getNewMethod() == AuthMethod.PASSWORD_SMS)

@@ -37,6 +37,21 @@ public class PaymentCardService {
         return PaymentCardDto.fromEntity(saved);
     }
 
+    @Transactional
+    public PaymentCardDto addCard(AddCardRequest request, User user) {
+        validateCardData(request);
+
+        PaymentCard card = new PaymentCard();
+        card.setUser(user);
+        card.setPanMasked(maskPan(request.getPan()));
+        card.setExpiryMonth(request.getExpiryMonth());
+        card.setExpiryYear(request.getExpiryYear());
+        card.setCardHolderName(request.getCardHolderName());
+
+        PaymentCard saved = cardRepository.save(card);
+        return PaymentCardDto.fromEntity(saved);
+    }
+
     @Transactional(readOnly = true)
     public List<PaymentCardDto> getUserCards() {
         User user = currentUserService.getCurrentUserOrThrow();
