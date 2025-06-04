@@ -62,7 +62,7 @@ public class OperationService {
                 .toList();
     }
 
-    private List<OperationPresentation> getUserOperationsByPeriodAndType(
+    public List<OperationPresentation> getUserOperationsByPeriodAndType(
             Long userId,
             LocalDateTime periodStart, LocalDateTime periodEnd,
             OperationType operationType
@@ -76,7 +76,7 @@ public class OperationService {
                 .toList();
     }
 
-    private List<OperationPresentation> getAllOperationsByPeriodAndType(
+    public List<OperationPresentation> getAllOperationsByPeriodAndType(
             LocalDateTime periodStart, LocalDateTime periodEnd, OperationType operationType) {
         List<Operation> operations = operationRepository.getOperationsByTimeBetweenAndOperationType(
                 periodStart, periodEnd, operationType);
