@@ -5,10 +5,12 @@ import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.springframework.stereotype.Component;
 import ru.itmo.common.dto.OperationPresentation;
+import ru.itmo.common.entity.enums.OperationType;
 import ru.itmo.node_a_core.service.OperationService;
 import ru.itmo.node_a_core.utils.DateUtils;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -16,13 +18,35 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ReceiveCertainUserOperationsDelegate implements JavaDelegate {
     private final OperationService operationService;
+    private static final LocalDateTime defaultPeriodStart = LocalDateTime.now();
+    private static final LocalDateTime defaultPeriodEnd = LocalDateTime.now().minusYears(1);
 
     @Override
     public void execute(DelegateExecution ex) {
-        LocalDateTime periodStart = DateUtils.convertToLocalDateTimeViaInstant((Date) ex.getVariable("periodStart"));
-        LocalDateTime periodEnd = DateUtils.convertToLocalDateTimeViaInstant((Date) ex.getVariable("periodEnd"));
-        Long targetUserId = (Long) ex.getVariable("targetUserId");
-        List<OperationPresentation> operationPresentations = operationService.getUserOperationsByPeriod(targetUserId, periodStart, periodEnd);
+        Object rawPeriodStart = ex.getVariable("periodStart");
+        Object rawPeriodEnd = ex.getVariable("periodEnd");
+        Object rawTargetUserId = ex.getVariable("targetUserId");
+        Object rawCategory = ex.getVariable("category");
+        LocalDateTime periodStart = rawPeriodStart != null
+                ? DateUtils.convertToLocalDateTimeViaInstant((Date) (rawPeriodStart))
+                : defaultPeriodStart;
+        LocalDateTime periodEnd = rawPeriodEnd != null
+                ? DateUtils.convertToLocalDateTimeViaInstant((Date) rawPeriodEnd)
+                : defaultPeriodEnd;
+        if (rawTargetUserId == null) {
+            throw new IllegalStateException("Не найдено process-variable 'targetUserId'! Проверьте, что она устанавливается до этой точки.");
+        }
+        Long targetUserId = (Long) rawTargetUserId;
+        String category = rawCategory != null
+                ?(String) rawCategory
+                : "";
+        List<OperationPresentation> operationPresentations;
+        if (Arrays.stream(OperationType.values()).anyMatch(value -> value.name().equals(category))) {
+            operationPresentations = operationService.getUserOperationsByPeriodAndType(targetUserId, periodStart, periodEnd, OperationType.valueOf(category));
+        }
+        else {
+            operationPresentations = operationService.getUserOperationsByPeriod(targetUserId, periodStart, periodEnd);
+        }
         ex.setVariable("operations", operationPresentations.toString());
     }
 }

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 TASK_IDS=$(curl -s -u d:d \
-  "http://localhost:8080/engine-rest/task?taskDefinitionKey=Activity_12o9p9o" \
+  "http://localhost:8080/engine-rest/task?taskDefinitionKey=Activity_1mf9lii" \
   | jq -r '.[].id')
 
 for id in $TASK_IDS; do
