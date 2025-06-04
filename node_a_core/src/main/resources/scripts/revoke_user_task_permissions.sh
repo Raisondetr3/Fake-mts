@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 TASK_IDS=$(curl -s -u d:d \
-  "http://localhost:8080/engine-rest/task?taskDefinitionKey=Activity_0vimw98" \
+  "http://localhost:8080/engine-rest/task?taskDefinitionKey=Activity_12o9p9o" \
   | jq -r '.[].id')
 
 for id in $TASK_IDS; do
@@ -14,7 +14,7 @@ for id in $TASK_IDS; do
 {
   "type": 2,
   "permissions": ["READ","UPDATE","TASK_WORK"],
-  "groupId": "admin",
+  "groupId": "user",
   "resourceType": 7,
   "resourceId": "$id"
 }
